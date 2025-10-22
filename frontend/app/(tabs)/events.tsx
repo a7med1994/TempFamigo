@@ -188,7 +188,7 @@ export default function EventsScreen() {
       </ScrollView>
 
       {/* Floating Action Button */}
-      <TouchableOpacity style={styles.fab} onPress={() => alert('Create Event feature coming soon!')}>
+      <TouchableOpacity style={styles.fab} onPress={() => router.push('/create-event')}>
         <Ionicons name="add" size={24} color="#FFFFFF" />
       </TouchableOpacity>
     </View>
