@@ -25,8 +25,9 @@ export default function CreateEventScreen() {
   const { user } = useStore();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
+  const [eventDate, setEventDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
   const [location, setLocation] = useState('');
   const [city, setCity] = useState(user?.location?.city || 'Melbourne');
   const [minAge, setMinAge] = useState('0');
@@ -35,6 +36,19 @@ export default function CreateEventScreen() {
   const [isPublic, setIsPublic] = useState(true);
   const [images, setImages] = useState<string[]>([]);
   const [isCreating, setIsCreating] = useState(false);
+
+  // Check if all required fields are filled
+  const isFormValid = () => {
+    return (
+      title.trim() !== '' &&
+      description.trim() !== '' &&
+      location.trim() !== '' &&
+      city.trim() !== '' &&
+      minAge.trim() !== '' &&
+      maxAge.trim() !== '' &&
+      maxParticipants.trim() !== ''
+    );
+  };
 
   const pickImage = async () => {
     try {
