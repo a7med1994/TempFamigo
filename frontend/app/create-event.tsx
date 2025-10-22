@@ -33,6 +33,38 @@ export default function CreateEventScreen() {
   const [images, setImages] = useState<string[]>([]);
   const [isCreating, setIsCreating] = useState(false);
 
+  const pickImage = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (status !== 'granted') {
+        Alert.alert('Permission needed', 'Please allow access to your photos');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsMultipleSelection: true,
+        quality: 0.5,
+        base64: true,
+      });
+
+      if (!result.canceled && result.assets) {
+        const newImages = result.assets.map(asset => 
+          `data:image/jpeg;base64,${asset.base64}`
+        );
+        setImages([...images, ...newImages]);
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert('Error', 'Could not pick image');
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setImages(images.filter((_, i) => i !== index));
+  };
+
   const handleCreateEvent = async () => {
     if (!user) {
       Alert.alert('Error', 'Please complete your profile first');
@@ -45,8 +77,17 @@ export default function CreateEventScreen() {
     }
 
     try {
+      setIsCreating(true);
+      
       // Create event date
       const eventDate = new Date(`${date}T${time || '10:00'}`);
+
+      console.log('Creating event with data:', {
+        title,
+        description,
+        date: eventDate.toISOString(),
+        location,
+      });
 
       const response = await api.post('/events', {
         title,
@@ -61,13 +102,15 @@ export default function CreateEventScreen() {
         host_id: user.id,
         host_name: user.name,
         age_range: {
-          min: parseInt(minAge),
-          max: parseInt(maxAge),
+          min: parseInt(minAge) || 0,
+          max: parseInt(maxAge) || 12,
         },
-        max_participants: parseInt(maxParticipants),
+        max_participants: parseInt(maxParticipants) || 20,
         is_public: isPublic,
-        images: [],
+        images: images,
       });
+
+      console.log('Event created:', response.data);
 
       // Also create a post in community feed
       await api.post('/posts', {
@@ -75,18 +118,23 @@ export default function CreateEventScreen() {
         user_name: user.name,
         user_avatar: user.avatar || '',
         post_type: 'event_announcement',
-        content: `🎉 New event: ${title}\\n\\n${description}\\n\\n📍 ${location}\\n📅 ${date} at ${time || '10:00 AM'}`,
-        images: [],
+        content: `🎉 New event: ${title}\n\n${description}\n\n📍 ${location}\n📅 ${date} at ${time || '10:00 AM'}`,
+        images: images,
         related_event_id: response.data.id,
         is_public: isPublic,
       });
 
-      Alert.alert('Success!', 'Your event has been created', [
+      console.log('Post created in community feed');
+
+      Alert.alert('Success!', 'Your event has been created and posted to the community feed!', [
         { text: 'OK', onPress: () => router.back() }
       ]);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating event:', error);
-      Alert.alert('Error', 'Could not create event');
+      console.error('Error details:', error.response?.data);
+      Alert.alert('Error', `Could not create event: ${error.response?.data?.detail || error.message}`);
+    } finally {
+      setIsCreating(false);
     }
   };
 
