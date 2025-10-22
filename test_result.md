@@ -282,3 +282,5 @@ agent_communication:
       message: "Implemented Sprint 1 (Core Discovery + AI Recommendations) of Famigo app. Backend has all venue, event, review, and booking APIs with AI recommendations using Emergent LLM key. Frontend has complete navigation, discovery screen with filters, venue details, events, and profile. Database seeded with sample data. Ready for backend testing."
     - agent: "testing"
       message: "✅ BACKEND TESTING COMPLETE: All 18 backend API tests passed successfully! Fixed .env parsing issue. Venue APIs (6/6), AI Recommendations (1/1), Event APIs (6/6), Review APIs (2/2), and Booking APIs (3/3) all working correctly. AI recommendations using Emergent LLM key functioning properly. Database operations, RSVP system, rating calculations, and mock payment system all operational. Backend is production-ready."
+    - agent: "main"
+      message: "Working on bug fixes and new feature: 1) Implementing left slide drawer menu from burger icon, 2) Fixing event detail navigation, 3) Adding profile photo upload functionality, 4) Standardizing categories across app. Will update and test backend first."
