@@ -2,26 +2,17 @@ import { Tabs, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity, View, Text, StyleSheet, Image } from 'react-native';
 import { useStore } from '../../store/useStore';
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import { useState } from 'react';
-import CustomDrawer from '../../components/CustomDrawer';
-import { DrawerActions } from '@react-navigation/native';
-import { useNavigation } from 'expo-router';
-
-const Drawer = createDrawerNavigator();
+import { useDrawer } from '../../contexts/DrawerContext';
 
 export default function TabsLayout() {
   const { user } = useStore();
-  const navigation = useNavigation();
+  const { openDrawer } = useDrawer();
 
   const HeaderLeft = () => (
     <View style={styles.headerLeft}>
       <TouchableOpacity
         style={styles.menuButton}
-        onPress={() => {
-          // @ts-ignore
-          navigation.dispatch(DrawerActions.openDrawer());
-        }}
+        onPress={openDrawer}
       >
         <Ionicons name="menu" size={28} color="#FFFFFF" />
       </TouchableOpacity>

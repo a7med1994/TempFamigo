@@ -7,12 +7,15 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
-import { DrawerContentScrollView } from '@react-navigation/drawer';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useStore } from '../store/useStore';
 
-export default function CustomDrawer(props: any) {
+interface CustomDrawerProps {
+  onClose: () => void;
+}
+
+export default function CustomDrawer({ onClose }: CustomDrawerProps) {
   const { user } = useStore();
 
   const menuItems = [
@@ -22,61 +25,65 @@ export default function CustomDrawer(props: any) {
     { id: 'profile', label: 'Profile', icon: 'person', route: '/(tabs)/profile' },
   ];
 
+  const handleNavigate = (route: string) => {
+    onClose();
+    router.push(route as any);
+  };
+
   return (
-    <DrawerContentScrollView {...props} contentContainerStyle={styles.container}>
-      <View style={styles.drawerContent}>
-        {/* Profile Section */}
-        <View style={styles.profileSection}>
-          <View style={styles.avatarContainer}>
-            {user?.avatar ? (
-              <Image source={{ uri: user.avatar }} style={styles.avatar} />
-            ) : (
-              <View style={styles.avatarPlaceholder}>
-                <Ionicons name="person" size={40} color="#6D9773" />
-              </View>
-            )}
-          </View>
-          <Text style={styles.userName}>{user?.name || 'Guest'}</Text>
-          {user?.location?.city && (
-            <View style={styles.locationRow}>
-              <Ionicons name="location" size={14} color="#BB8A52" />
-              <Text style={styles.userLocation}>{user.location.city}</Text>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      {/* Profile Section */}
+      <View style={styles.profileSection}>
+        <TouchableOpacity
+          style={styles.avatarContainer}
+          onPress={() => handleNavigate('/(tabs)/profile')}
+        >
+          {user?.avatar ? (
+            <Image source={{ uri: user.avatar }} style={styles.avatar} />
+          ) : (
+            <View style={styles.avatarPlaceholder}>
+              <Ionicons name="person" size={40} color="#6D9773" />
             </View>
           )}
-        </View>
-
-        {/* Menu Items */}
-        <View style={styles.menuSection}>
-          {menuItems.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.menuItem}
-              onPress={() => {
-                router.push(item.route);
-                props.navigation.closeDrawer();
-              }}
-            >
-              <Ionicons name={item.icon as any} size={24} color="#BB8A52" />
-              <Text style={styles.menuLabel}>{item.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* Footer */}
-        <View style={styles.footer}>
-          <Text style={styles.appName}>🌳 Famigo</Text>
-          <Text style={styles.tagline}>Discover. Connect. Play.</Text>
-        </View>
+        </TouchableOpacity>
+        <Text style={styles.userName}>{user?.name || 'Guest'}</Text>
+        {user?.location?.city && (
+          <View style={styles.locationRow}>
+            <Ionicons name="location" size={14} color="#BB8A52" />
+            <Text style={styles.userLocation}>{user.location.city}</Text>
+          </View>
+        )}
       </View>
-    </DrawerContentScrollView>
+
+      {/* Menu Items */}
+      <View style={styles.menuSection}>
+        {menuItems.map((item) => (
+          <TouchableOpacity
+            key={item.id}
+            style={styles.menuItem}
+            onPress={() => handleNavigate(item.route)}
+          >
+            <Ionicons name={item.icon as any} size={24} color="#BB8A52" />
+            <Text style={styles.menuLabel}>{item.label}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {/* Footer */}
+      <View style={styles.footer}>
+        <Text style={styles.appName}>🌳 Famigo</Text>
+        <Text style={styles.tagline}>Discover. Connect. Play.</Text>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#FFFFFF',
   },
-  drawerContent: {
+  content: {
     flex: 1,
     padding: 20,
   },
