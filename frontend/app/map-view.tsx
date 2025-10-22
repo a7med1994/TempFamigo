@@ -281,8 +281,99 @@ const styles = StyleSheet.create({
   locationButton: {
     padding: 8,
   },
-  map: {
+  listContainer: {
     flex: 1,
+  },
+  section: {
+    padding: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#0C3B2E',
+    marginBottom: 16,
+  },
+  listItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  iconCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  itemContent: {
+    flex: 1,
+  },
+  itemTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#0C3B2E',
+    marginBottom: 4,
+  },
+  itemCategory: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#6D9773',
+    marginBottom: 4,
+  },
+  itemHost: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginBottom: 4,
+  },
+  itemDate: {
+    fontSize: 12,
+    color: '#6B7280',
+    marginBottom: 4,
+  },
+  itemMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 4,
+  },
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  ratingText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#0C3B2E',
+  },
+  priceText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#10B981',
+  },
+  itemAddress: {
+    fontSize: 11,
+    color: '#9CA3AF',
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 80,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: '#6B7280',
+    marginTop: 16,
   },
   loadingContainer: {
     flex: 1,
