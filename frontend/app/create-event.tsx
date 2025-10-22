@@ -30,6 +30,8 @@ export default function CreateEventScreen() {
   const [maxAge, setMaxAge] = useState('12');
   const [maxParticipants, setMaxParticipants] = useState('20');
   const [isPublic, setIsPublic] = useState(true);
+  const [images, setImages] = useState<string[]>([]);
+  const [isCreating, setIsCreating] = useState(false);
 
   const handleCreateEvent = async () => {
     if (!user) {
