@@ -259,7 +259,7 @@
         }
 
         function loadStats() {
-            fetch(`/admin/stats?password=${adminPassword}`)
+            fetch(`/api/admin/stats?password=${adminPassword}`)
                 .then(res => res.json())
                 .then(data => {
                     const statsGrid = document.getElementById('stats-grid');
