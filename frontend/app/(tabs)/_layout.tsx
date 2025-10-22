@@ -1,7 +1,54 @@
-import { Tabs } from 'expo-router';
+import { Tabs, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { TouchableOpacity, View, Text, StyleSheet, Image } from 'react-native';
+import { useStore } from '../../store/useStore';
+import { useState } from 'react';
 
 export default function TabsLayout() {
+  const { user } = useStore();
+  const [showMenu, setShowMenu] = useState(false);
+
+  const HeaderLeft = () => (
+    <View style={styles.headerLeft}>
+      <TouchableOpacity
+        style={styles.menuButton}
+        onPress={() => {
+          // Toggle a simple menu or navigate
+          router.push('/(tabs)/profile');
+        }}
+      >
+        <Ionicons name="menu" size={28} color="#FFFFFF" />
+      </TouchableOpacity>
+    </View>
+  );
+
+  const HeaderRight = () => (
+    <View style={styles.headerRight}>
+      <TouchableOpacity
+        style={styles.notificationButton}
+        onPress={() => alert('Notifications - Coming soon!')}
+      >
+        <Ionicons name="notifications" size={24} color="#FFFFFF" />
+        <View style={styles.notificationBadge}>
+          <Text style={styles.badgeText}>3</Text>
+        </View>
+      </TouchableOpacity>
+      
+      <TouchableOpacity
+        style={styles.profileButton}
+        onPress={() => router.push('/(tabs)/profile')}
+      >
+        {user?.avatar ? (
+          <Image source={{ uri: user.avatar }} style={styles.headerAvatar} />
+        ) : (
+          <View style={styles.headerAvatarPlaceholder}>
+            <Ionicons name="person" size={20} color="#6D9773" />
+          </View>
+        )}
+      </TouchableOpacity>
+    </View>
+  );
+
   return (
     <Tabs
       screenOptions={{
@@ -22,6 +69,8 @@ export default function TabsLayout() {
         headerTitleStyle: {
           fontWeight: '700',
         },
+        headerLeft: () => <HeaderLeft />,
+        headerRight: () => <HeaderRight />,
       }}
     >
       <Tabs.Screen
