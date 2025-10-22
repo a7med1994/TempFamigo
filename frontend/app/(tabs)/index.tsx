@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   RefreshControl,
   ActivityIndicator,
   Dimensions,
+  FlatList,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -18,6 +19,51 @@ import { CATEGORIES, AGE_RANGES, PRICE_TYPES } from '../../constants/Categories'
 import { useStore } from '../../store/useStore';
 
 const { width } = Dimensions.get('window');
+
+// Hero carousel data
+const HERO_CARDS = [
+  {
+    id: '1',
+    title: '🎪 Circus in Melbourne this weekend',
+    subtitle: 'Amazing acrobats & clowns',
+    emoji: '🎪',
+    bgColor: '#FFE5E5',
+    textColor: '#C7365F',
+  },
+  {
+    id: '2',
+    title: '🐮 Visit the Happy Cow Farm',
+    subtitle: 'Feed animals & tractor rides',
+    emoji: '🐮',
+    bgColor: '#E5F5E5',
+    textColor: '#2D7A4B',
+  },
+  {
+    id: '3',
+    title: '🎂 Host your birthday party',
+    subtitle: 'Make it unforgettable!',
+    emoji: '🎂',
+    bgColor: '#FFF4E5',
+    textColor: '#E67E22',
+  },
+  {
+    id: '4',
+    title: '🎨 Art & Craft Workshop',
+    subtitle: 'Unleash creativity this week',
+    emoji: '🎨',
+    bgColor: '#F0E5FF',
+    textColor: '#7E3AF2',
+  },
+];
+
+// Quick filter options
+const QUICK_FILTERS = [
+  { id: 'today', label: 'Today', icon: 'today' },
+  { id: 'weekend', label: 'This weekend', icon: 'calendar' },
+  { id: 'free', label: 'Free', icon: 'pricetag' },
+  { id: 'indoor', label: 'Indoors', icon: 'home' },
+  { id: 'toddlers', label: 'Toddlers', icon: 'happy' },
+];
 
 interface Venue {
   id: string;
