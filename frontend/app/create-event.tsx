@@ -10,9 +10,11 @@ import {
   Platform,
   Switch,
   Alert,
+  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
 import { useStore } from '../store/useStore';
 import api from '../utils/api';
 
