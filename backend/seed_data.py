@@ -247,6 +247,101 @@ async def seed_database():
     await db.reviews.insert_many(reviews)
     print(f"✓ Created {len(reviews)} reviews")
     
+    # Sample Social Feed Posts
+    posts = [
+        {
+            "user_id": "user_001",
+            "user_name": "Anita J.",
+            "user_avatar": None,
+            "post_type": "photo_share",
+            "content": "What an amazing day at Sunshine Indoor Play Centre! The kids had so much fun on the trampolines and climbing walls. Highly recommend for a rainy day activity! 🎉",
+            "images": [],
+            "related_venue_id": venue_ids[0] if len(venue_ids) > 0 else None,
+            "is_public": True,
+            "likes": 24,
+            "comment_count": 5,
+            "created_at": datetime.utcnow() - timedelta(hours=2)
+        },
+        {
+            "user_id": "user_002",
+            "user_name": "Sarah M.",
+            "user_avatar": None,
+            "post_type": "event_announcement",
+            "content": "Super excited about the upcoming Science Workshop: Volcanoes! 🌋 My kids have been asking about volcanoes non-stop. Who else is joining?",
+            "images": [],
+            "related_event_id": venue_ids[4] if len(venue_ids) > 4 else None,
+            "is_public": True,
+            "likes": 18,
+            "comment_count": 7,
+            "created_at": datetime.utcnow() - timedelta(hours=5)
+        },
+        {
+            "user_id": "user_003",
+            "user_name": "Norah H.",
+            "user_avatar": None,
+            "post_type": "recommendation",
+            "content": "Just discovered Wonder Playground and it's fantastic! 🎈 The water play area is perfect for hot days, and best of all - it's completely FREE! Great for ages 2-10.",
+            "images": [],
+            "related_venue_id": venue_ids[3] if len(venue_ids) > 3 else None,
+            "is_public": True,
+            "likes": 42,
+            "comment_count": 12,
+            "created_at": datetime.utcnow() - timedelta(hours=8)
+        },
+        {
+            "user_id": "user_004",
+            "user_name": "Debby K.",
+            "user_avatar": None,
+            "post_type": "invitation",
+            "content": "Hey Melbourne mums! 👋 I'm organizing a playgroup meet-up this Saturday at Wonder Playground, 10 AM. Bringing snacks and coffee! Kids ages 3-7 welcome. Comment if you'd like to join!",
+            "images": [],
+            "is_public": True,
+            "likes": 31,
+            "comment_count": 15,
+            "created_at": datetime.utcnow() - timedelta(hours=12)
+        },
+        {
+            "user_id": "user_005",
+            "user_name": "Emma T.",
+            "user_avatar": None,
+            "post_type": "photo_share",
+            "content": "Farm day was incredible! 🐄🐷 The kids loved feeding the animals and the tractor ride was the highlight. Thank you Happy Farm Experience for an educational and fun day!",
+            "images": [],
+            "related_venue_id": venue_ids[2] if len(venue_ids) > 2 else None,
+            "is_public": True,
+            "likes": 56,
+            "comment_count": 9,
+            "created_at": datetime.utcnow() - timedelta(hours=18)
+        },
+        {
+            "user_id": "user_006",
+            "user_name": "Lisa P.",
+            "user_avatar": None,
+            "post_type": "status",
+            "content": "Looking for outdoor activity recommendations for this weekend! Preferably something with shade as it's going to be hot. Any suggestions for kids aged 5 and 8? 🌞",
+            "images": [],
+            "is_public": True,
+            "likes": 11,
+            "comment_count": 18,
+            "created_at": datetime.utcnow() - timedelta(hours=3)
+        },
+        {
+            "user_id": "user_007",
+            "user_name": "Rachel W.",
+            "user_avatar": None,
+            "post_type": "event_announcement",
+            "content": "Don't miss the Farm Tour & Animal Feeding event next week! 🐑 It's perfect for younger kids who want hands-on experience with farm animals. Booking now!",
+            "images": [],
+            "is_public": True,
+            "likes": 27,
+            "comment_count": 6,
+            "created_at": datetime.utcnow() - timedelta(hours=24)
+        },
+    ]
+    
+    await db.posts.insert_many(posts)
+    print(f"✓ Created {len(posts)} social feed posts")
+    
     print("\n✅ Database seeded successfully!")
     client.close()
 
