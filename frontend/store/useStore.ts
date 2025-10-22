@@ -4,6 +4,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 interface User {
   id: string;
   name: string;
+  email?: string;
+  avatar?: string;  // base64 image
+  bio?: string;
   kidsAges: number[];
   location: {
     city: string;
