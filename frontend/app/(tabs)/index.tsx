@@ -20,39 +20,39 @@ import { useStore } from '../../store/useStore';
 
 const { width } = Dimensions.get('window');
 
-// Hero carousel data
+// Hero carousel data with custom color palette
 const HERO_CARDS = [
   {
     id: '1',
     title: '🎪 Circus in Melbourne this weekend',
     subtitle: 'Amazing acrobats & clowns',
     emoji: '🎪',
-    bgColor: '#FFE5E5',
-    textColor: '#C7365F',
+    bgColor: '#FFF5E6',
+    textColor: '#BB8A52',
   },
   {
     id: '2',
     title: '🐮 Visit the Happy Cow Farm',
     subtitle: 'Feed animals & tractor rides',
     emoji: '🐮',
-    bgColor: '#E5F5E5',
-    textColor: '#2D7A4B',
+    bgColor: '#E8F4EC',
+    textColor: '#0C3B2E',
   },
   {
     id: '3',
     title: '🎂 Host your birthday party',
     subtitle: 'Make it unforgettable!',
     emoji: '🎂',
-    bgColor: '#FFF4E5',
-    textColor: '#E67E22',
+    bgColor: '#FFF9E6',
+    textColor: '#FFBA00',
   },
   {
     id: '4',
     title: '🎨 Art & Craft Workshop',
     subtitle: 'Unleash creativity this week',
     emoji: '🎨',
-    bgColor: '#F0E5FF',
-    textColor: '#7E3AF2',
+    bgColor: '#F0F7F1',
+    textColor: '#6D9773',
   },
 ];
 
