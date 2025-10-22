@@ -37,6 +37,15 @@ export default function EventsScreen() {
     fetchEvents();
   }, [filter]);
 
+  // Refresh events when screen comes into focus
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchEvents();
+    }, 5000); // Refresh every 5 seconds
+    
+    return () => clearInterval(interval);
+  }, [filter]);
+
   const fetchEvents = async () => {
     try {
       setLoading(true);
