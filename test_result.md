@@ -193,17 +193,20 @@ backend:
           comment: "Created seed script with 6 sample venues, 3 events, and 3 reviews. Successfully seeded database."
 
 frontend:
-  - task: "Bottom tab navigation structure"
+  - task: "Bottom tab navigation structure with left drawer menu"
     implemented: true
     working: "NA"
     file: "/app/frontend/app/(tabs)/_layout.tsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Implemented 4-tab navigation: Discover, Events, Community, Profile using expo-router and @react-navigation/bottom-tabs"
+        - working: "NA"
+          agent: "main"
+          comment: "Added left slide drawer menu from burger icon with navigation to Discover, Events, Community, Profile. Implemented using custom DrawerContext and Modal-based drawer."
   
   - task: "Discovery screen with search, filters, AI recommendations"
     implemented: true
