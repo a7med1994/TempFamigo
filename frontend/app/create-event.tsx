@@ -412,6 +412,42 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     lineHeight: 18,
   },
+  uploadButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#E8F4EC',
+    borderWidth: 2,
+    borderColor: '#6D9773',
+    borderStyle: 'dashed',
+    borderRadius: 12,
+    paddingVertical: 16,
+    gap: 8,
+  },
+  uploadButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#6D9773',
+  },
+  imagePreview: {
+    marginTop: 12,
+  },
+  imageContainer: {
+    position: 'relative',
+    marginRight: 12,
+  },
+  previewImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
+  },
+  removeImageButton: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+  },
   createButton: {
     flexDirection: 'row',
     backgroundColor: '#6D9773',
@@ -421,6 +457,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     marginTop: 8,
+  },
+  createButtonDisabled: {
+    backgroundColor: '#9CA3AF',
   },
   createButtonText: {
     fontSize: 16,
