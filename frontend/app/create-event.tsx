@@ -459,6 +459,22 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     paddingBottom: 20,
   },
+  datePickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F9FAFB',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 8,
+  },
+  datePickerText: {
+    fontSize: 16,
+    color: '#0C3B2E',
+    fontWeight: '600',
+  },
   toggleContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
