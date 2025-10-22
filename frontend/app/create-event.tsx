@@ -304,11 +304,21 @@ export default function CreateEventScreen() {
 
           {/* Create Button */}
           <TouchableOpacity
-            style={styles.createButton}
+            style={[styles.createButton, isCreating && styles.createButtonDisabled]}
             onPress={handleCreateEvent}
+            disabled={isCreating}
           >
-            <Ionicons name="add-circle" size={20} color="#FFFFFF" />
-            <Text style={styles.createButtonText}>Create Event</Text>
+            {isCreating ? (
+              <>
+                <ActivityIndicator color="#FFFFFF" />
+                <Text style={styles.createButtonText}>Creating...</Text>
+              </>
+            ) : (
+              <>
+                <Ionicons name="add-circle" size={20} color="#FFFFFF" />
+                <Text style={styles.createButtonText}>Create Event</Text>
+              </>
+            )}
           </TouchableOpacity>
         </View>
       </ScrollView>
