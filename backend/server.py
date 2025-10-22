@@ -141,6 +141,54 @@ class BookingCreate(BaseModel):
     date: datetime
     amount: float
 
+class Post(BaseModel):
+    id: Optional[str] = None
+    user_id: str
+    user_name: str
+    user_avatar: Optional[str] = None
+    post_type: str  # 'photo_share' | 'event_announcement' | 'recommendation' | 'invitation' | 'status'
+    content: str
+    images: List[str] = []
+    related_venue_id: Optional[str] = None
+    related_event_id: Optional[str] = None
+    is_public: bool = True
+    likes: int = 0
+    comment_count: int = 0
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class PostCreate(BaseModel):
+    user_id: str
+    user_name: str
+    user_avatar: Optional[str] = None
+    post_type: str
+    content: str
+    images: List[str] = []
+    related_venue_id: Optional[str] = None
+    related_event_id: Optional[str] = None
+    is_public: bool = True
+
+class Comment(BaseModel):
+    id: Optional[str] = None
+    post_id: str
+    user_id: str
+    user_name: str
+    comment: str
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class CommentCreate(BaseModel):
+    post_id: str
+    user_id: str
+    user_name: str
+    comment: str
+
+class Reaction(BaseModel):
+    id: Optional[str] = None
+    post_id: str
+    user_id: str
+    user_name: str
+    reaction_type: str  # 'like' | 'love' | 'celebrate' | 'support'
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
 # ==================== VENUE ENDPOINTS ====================
 
 @api_router.post("/venues", response_model=Venue)
