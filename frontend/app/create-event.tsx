@@ -177,6 +177,31 @@ export default function CreateEventScreen() {
             />
           </View>
 
+          {/* Photo Upload */}
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Photos (Optional)</Text>
+            <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
+              <Ionicons name="camera" size={20} color="#6D9773" />
+              <Text style={styles.uploadButtonText}>Add Photos</Text>
+            </TouchableOpacity>
+            
+            {images.length > 0 && (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.imagePreview}>
+                {images.map((image, index) => (
+                  <View key={index} style={styles.imageContainer}>
+                    <Image source={{ uri: image }} style={styles.previewImage} />
+                    <TouchableOpacity
+                      style={styles.removeImageButton}
+                      onPress={() => removeImage(index)}
+                    >
+                      <Ionicons name="close-circle" size={24} color="#EF4444" />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </ScrollView>
+            )}
+          </View>
+
           {/* Date & Time */}
           <View style={styles.row}>
             <View style={[styles.inputGroup, styles.flex1]}>
