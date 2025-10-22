@@ -19,6 +19,46 @@ export default function ProfileScreen() {
   const [name, setName] = useState(user?.name || '');
   const [city, setCity] = useState(user?.location?.city || '');
   const [kidsAges, setKidsAges] = useState(user?.kidsAges?.join(', ') || '');
+  const [avatar, setAvatar] = useState(user?.avatar || '');
+
+  const handlePickImage = async () => {
+    try {
+      // Request permission
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permission Required',
+          'Please grant camera roll permissions to upload a photo'
+        );
+        return;
+      }
+
+      // Launch image picker
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.5,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const imageUri = result.assets[0].uri;
+        setAvatar(imageUri);
+        
+        // Update user avatar immediately
+        if (user) {
+          const updatedUser = { ...user, avatar: imageUri };
+          setUser(updatedUser);
+        }
+        
+        Alert.alert('Success', 'Profile photo updated!');
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert('Error', 'Failed to pick image');
+    }
+  };
 
   const handleSave = () => {
     if (!name || !city) {
@@ -36,6 +76,7 @@ export default function ProfileScreen() {
         city,
         coordinates: { lat: -37.8136, lng: 144.9631 }, // Default Melbourne
       },
+      avatar: avatar || user?.avatar,
     };
 
     setUser(newUser);
@@ -48,9 +89,19 @@ export default function ProfileScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         {/* Profile Header */}
         <View style={styles.header}>
-          <View style={styles.avatar}>
-            <Ionicons name="person" size={48} color="#6D9773" />
-          </View>
+          <TouchableOpacity onPress={handlePickImage} style={styles.avatarContainer}>
+            {avatar || user?.avatar ? (
+              <Image source={{ uri: avatar || user?.avatar }} style={styles.avatar} />
+            ) : (
+              <View style={styles.avatarPlaceholder}>
+                <Ionicons name="person" size={48} color="#6D9773" />
+              </View>
+            )}
+            <View style={styles.editAvatarBadge}>
+              <Ionicons name="camera" size={16} color="#FFFFFF" />
+            </View>
+          </TouchableOpacity>
+          <Text style={styles.uploadHint}>Tap to upload photo</Text>
           {!isEditing && user && (
             <View style={styles.headerInfo}>
               <Text style={styles.userName}>{user.name}</Text>
@@ -165,13 +216,39 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginBottom: 16,
   },
+  avatarContainer: {
+    position: 'relative',
+  },
   avatar: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+  },
+  avatarPlaceholder: {
     width: 96,
     height: 96,
     borderRadius: 48,
     backgroundColor: '#EEF2FF',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  editAvatarBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#6D9773',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: '#FFFFFF',
+  },
+  uploadHint: {
+    fontSize: 12,
+    color: '#9CA3AF',
+    marginTop: 8,
   },
   headerInfo: {
     alignItems: 'center',

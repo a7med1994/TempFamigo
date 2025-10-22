@@ -2,19 +2,25 @@ import { Tabs, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity, View, Text, StyleSheet, Image } from 'react-native';
 import { useStore } from '../../store/useStore';
+import { createDrawerNavigator } from '@react-navigation/drawer';
 import { useState } from 'react';
+import CustomDrawer from '../../components/CustomDrawer';
+import { DrawerActions } from '@react-navigation/native';
+import { useNavigation } from 'expo-router';
+
+const Drawer = createDrawerNavigator();
 
 export default function TabsLayout() {
   const { user } = useStore();
-  const [showMenu, setShowMenu] = useState(false);
+  const navigation = useNavigation();
 
   const HeaderLeft = () => (
     <View style={styles.headerLeft}>
       <TouchableOpacity
         style={styles.menuButton}
         onPress={() => {
-          // Toggle a simple menu or navigate
-          router.push('/(tabs)/profile');
+          // @ts-ignore
+          navigation.dispatch(DrawerActions.openDrawer());
         }}
       >
         <Ionicons name="menu" size={28} color="#FFFFFF" />
