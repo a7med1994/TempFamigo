@@ -473,6 +473,23 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F9FAFB',
   },
+  locationHeader: {
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  locationButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  locationText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1F2937',
+  },
   searchContainer: {
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 16,
