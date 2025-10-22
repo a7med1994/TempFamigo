@@ -261,7 +261,7 @@ export default function CommunityScreen() {
       {/* FAB for creating new post */}
       <TouchableOpacity
         style={styles.fab}
-        onPress={() => alert('Create post feature coming soon!')}
+        onPress={() => alert('Post creation feature - Coming soon! (Will add photo upload)')}
       >
         <Ionicons name="add" size={24} color="#FFFFFF" />
       </TouchableOpacity>
