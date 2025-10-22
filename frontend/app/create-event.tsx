@@ -88,16 +88,13 @@ export default function CreateEventScreen() {
       return;
     }
 
-    if (!title || !description || !date || !location) {
+    if (!isFormValid()) {
       Alert.alert('Error', 'Please fill in all required fields');
       return;
     }
 
     try {
       setIsCreating(true);
-      
-      // Create event date
-      const eventDate = new Date(`${date}T${time || '10:00'}`);
 
       console.log('Creating event with data:', {
         title,
@@ -130,12 +127,15 @@ export default function CreateEventScreen() {
       console.log('Event created:', response.data);
 
       // Also create a post in community feed
+      const dateStr = format(eventDate, 'MMM d, yyyy');
+      const timeStr = format(eventDate, 'h:mm a');
+      
       await api.post('/posts', {
         user_id: user.id,
         user_name: user.name,
         user_avatar: user.avatar || '',
         post_type: 'event_announcement',
-        content: `🎉 New event: ${title}\n\n${description}\n\n📍 ${location}\n📅 ${date} at ${time || '10:00 AM'}`,
+        content: `🎉 New event: ${title}\n\n${description}\n\n📍 ${location}\n📅 ${dateStr} at ${timeStr}`,
         images: images,
         related_event_id: response.data.id,
         is_public: isPublic,
