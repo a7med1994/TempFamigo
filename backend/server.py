@@ -562,8 +562,9 @@ async def get_post_comments(post_id: str):
 async def root():
     return {"message": "Famigo API - Discover. Connect. Play."}
 
-# Include router
+# Include routers
 app.include_router(api_router)
+app.include_router(admin_router)
 
 app.add_middleware(
     CORSMiddleware,
