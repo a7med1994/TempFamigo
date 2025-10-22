@@ -521,7 +521,7 @@ const styles = StyleSheet.create({
   quickFilterChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#E8F4EC',
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
@@ -529,12 +529,12 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   quickFilterChipActive: {
-    backgroundColor: '#6366F1',
+    backgroundColor: '#6D9773',
   },
   quickFilterText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#6366F1',
+    color: '#0C3B2E',
   },
   quickFilterTextActive: {
     color: '#FFFFFF',
