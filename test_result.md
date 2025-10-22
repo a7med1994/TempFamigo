@@ -293,7 +293,10 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Event detail screen with RSVP"
+    - "Profile screen with user setup and photo upload"
+    - "Bottom tab navigation structure with left drawer menu"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
