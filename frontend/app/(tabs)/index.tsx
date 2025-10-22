@@ -488,7 +488,7 @@ const styles = StyleSheet.create({
   locationText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1F2937',
+    color: '#0C3B2E',
   },
   searchContainer: {
     backgroundColor: '#FFFFFF',
