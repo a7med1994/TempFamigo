@@ -320,7 +320,7 @@ export default function DiscoverScreen() {
         {recommendations.length > 0 && (
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Ionicons name="sparkles" size={20} color="#6D9773" />
+              <Ionicons name="sparkles" size={22} color="#FFBA00" />
               <Text style={styles.sectionTitle}>AI Picks for You</Text>
             </View>
             <Text style={styles.sectionSubtitle}>
