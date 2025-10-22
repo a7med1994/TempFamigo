@@ -158,7 +158,7 @@ export default function CommunityScreen() {
       case 'status':
         return '#6B7280';
       default:
-        return '#6366F1';
+        return '#6D9773';
     }
   };
 
@@ -210,7 +210,7 @@ export default function CommunityScreen() {
           style={styles.actionButton}
           onPress={() => handleLike(post.id)}
         >
-          <Ionicons name="heart-outline" size={20} color="#6366F1" />
+          <Ionicons name="heart-outline" size={20} color="#6D9773" />
           <Text style={styles.actionButtonText}>Like</Text>
         </TouchableOpacity>
 
@@ -218,7 +218,7 @@ export default function CommunityScreen() {
           style={styles.actionButton}
           onPress={() => handleCommentPress(post)}
         >
-          <Ionicons name="chatbubble-outline" size={20} color="#6366F1" />
+          <Ionicons name="chatbubble-outline" size={20} color="#6D9773" />
           <Text style={styles.actionButtonText}>Comment</Text>
         </TouchableOpacity>
 
@@ -244,7 +244,7 @@ export default function CommunityScreen() {
         <View style={styles.content}>
           {loading ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#6366F1" />
+              <ActivityIndicator size="large" color="#6D9773" />
             </View>
           ) : posts.length === 0 ? (
             <View style={styles.emptyContainer}>
@@ -462,7 +462,7 @@ const styles = StyleSheet.create({
   actionButtonText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#6366F1',
+    color: '#6D9773',
   },
   fab: {
     position: 'absolute',
@@ -523,7 +523,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: '#6366F1',
+    backgroundColor: '#6D9773',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -568,7 +568,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#6366F1',
+    backgroundColor: '#6D9773',
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -223,7 +223,7 @@ export default function DiscoverScreen() {
       {/* Location Header */}
       <View style={styles.locationHeader}>
         <TouchableOpacity style={styles.locationButton}>
-          <Ionicons name="location" size={20} color="#6366F1" />
+          <Ionicons name="location" size={20} color="#6D9773" />
           <Text style={styles.locationText}>
             {user?.location?.city || 'Near me'}
           </Text>
@@ -265,7 +265,7 @@ export default function DiscoverScreen() {
               <Ionicons
                 name={filter.icon as any}
                 size={14}
-                color={selectedQuickFilter === filter.id ? '#FFFFFF' : '#6366F1'}
+                color={selectedQuickFilter === filter.id ? '#FFFFFF' : '#6D9773'}
               />
               <Text
                 style={[
@@ -320,7 +320,7 @@ export default function DiscoverScreen() {
         {recommendations.length > 0 && (
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Ionicons name="sparkles" size={20} color="#6366F1" />
+              <Ionicons name="sparkles" size={20} color="#6D9773" />
               <Text style={styles.sectionTitle}>AI Picks for You</Text>
             </View>
             <Text style={styles.sectionSubtitle}>
@@ -359,7 +359,7 @@ export default function DiscoverScreen() {
                 <Ionicons
                   name={category.icon as any}
                   size={16}
-                  color={selectedCategory === category.id ? '#FFFFFF' : '#6366F1'}
+                  color={selectedCategory === category.id ? '#FFFFFF' : '#6D9773'}
                 />
                 <Text
                   style={[
@@ -449,7 +449,7 @@ export default function DiscoverScreen() {
           </Text>
           {loading ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#6366F1" />
+              <ActivityIndicator size="large" color="#6D9773" />
             </View>
           ) : venues.length === 0 ? (
             <View style={styles.emptyContainer}>
@@ -623,12 +623,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   filterChipActive: {
-    backgroundColor: '#6366F1',
+    backgroundColor: '#6D9773',
   },
   filterChipText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#6366F1',
+    color: '#6D9773',
     marginLeft: 4,
   },
   filterChipTextActive: {
@@ -640,7 +640,7 @@ const styles = StyleSheet.create({
   },
   recommendationReason: {
     fontSize: 12,
-    color: '#6366F1',
+    color: '#6D9773',
     marginTop: 8,
     fontStyle: 'italic',
   },
@@ -679,7 +679,7 @@ const styles = StyleSheet.create({
   venueCategory: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#6366F1',
+    color: '#6D9773',
     textTransform: 'uppercase',
     marginBottom: 8,
   },

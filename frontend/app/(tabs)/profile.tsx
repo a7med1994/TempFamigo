@@ -47,7 +47,7 @@ export default function ProfileScreen() {
         {/* Profile Header */}
         <View style={styles.header}>
           <View style={styles.avatar}>
-            <Ionicons name="person" size={48} color="#6366F1" />
+            <Ionicons name="person" size={48} color="#6D9773" />
           </View>
           {!isEditing && user && (
             <View style={styles.headerInfo}>
@@ -103,7 +103,7 @@ export default function ProfileScreen() {
               style={styles.editButton}
               onPress={() => setIsEditing(true)}
             >
-              <Ionicons name="pencil" size={18} color="#6366F1" />
+              <Ionicons name="pencil" size={18} color="#6D9773" />
               <Text style={styles.editButtonText}>Edit Profile</Text>
             </TouchableOpacity>
 
@@ -125,17 +125,17 @@ export default function ProfileScreen() {
               <Text style={styles.sectionTitle}>Quick Stats</Text>
               <View style={styles.statsGrid}>
                 <View style={styles.statCard}>
-                  <Ionicons name="calendar" size={24} color="#6366F1" />
+                  <Ionicons name="calendar" size={24} color="#6D9773" />
                   <Text style={styles.statNumber}>0</Text>
                   <Text style={styles.statLabel}>Events Hosted</Text>
                 </View>
                 <View style={styles.statCard}>
-                  <Ionicons name="ticket" size={24} color="#6366F1" />
+                  <Ionicons name="ticket" size={24} color="#6D9773" />
                   <Text style={styles.statNumber}>0</Text>
                   <Text style={styles.statLabel}>Bookings</Text>
                 </View>
                 <View style={styles.statCard}>
-                  <Ionicons name="star" size={24} color="#6366F1" />
+                  <Ionicons name="star" size={24} color="#6D9773" />
                   <Text style={styles.statNumber}>0</Text>
                   <Text style={styles.statLabel}>Reviews</Text>
                 </View>
@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
     color: '#1F2937',
   },
   saveButton: {
-    backgroundColor: '#6366F1',
+    backgroundColor: '#6D9773',
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
   editButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#6366F1',
+    color: '#6D9773',
   },
   infoSection: {
     backgroundColor: '#FFFFFF',
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   ageChipText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#6366F1',
+    color: '#6D9773',
   },
   noData: {
     fontSize: 14,

@@ -110,7 +110,7 @@ export default function VenueDetailScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6366F1" />
+        <ActivityIndicator size="large" color="#6D9773" />
       </View>
     );
   }
@@ -179,7 +179,7 @@ export default function VenueDetailScreen() {
           {/* Location */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Ionicons name="location" size={20} color="#6366F1" />
+              <Ionicons name="location" size={20} color="#6D9773" />
               <Text style={styles.sectionTitle}>Location</Text>
             </View>
             <Text style={styles.address}>{venue.location.address}</Text>
@@ -195,7 +195,7 @@ export default function VenueDetailScreen() {
           {/* Age Range */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Ionicons name="people" size={20} color="#6366F1" />
+              <Ionicons name="people" size={20} color="#6D9773" />
               <Text style={styles.sectionTitle}>Age Range</Text>
             </View>
             <Text style={styles.ageRange}>
@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
   category: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#6366F1',
+    color: '#6D9773',
     textTransform: 'uppercase',
   },
   priceTag: {
@@ -393,7 +393,7 @@ const styles = StyleSheet.create({
   ageRange: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#6366F1',
+    color: '#6D9773',
   },
   facilitiesList: {
     flexDirection: 'row',
@@ -469,7 +469,7 @@ const styles = StyleSheet.create({
   },
   bookButton: {
     flexDirection: 'row',
-    backgroundColor: '#6366F1',
+    backgroundColor: '#6D9773',
     borderRadius: 12,
     paddingVertical: 16,
     justifyContent: 'center',

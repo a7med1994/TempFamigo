@@ -119,7 +119,7 @@ export default function EventsScreen() {
       
       <View style={styles.eventFooter}>
         <View style={styles.participantInfo}>
-          <Ionicons name="people" size={16} color="#6366F1" />
+          <Ionicons name="people" size={16} color="#6D9773" />
           <Text style={styles.participantText}>
             {event.current_participants}/{event.max_participants} joined
           </Text>
@@ -173,7 +173,7 @@ export default function EventsScreen() {
         <View style={styles.content}>
           {loading ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#6366F1" />
+              <ActivityIndicator size="large" color="#6D9773" />
             </View>
           ) : events.length === 0 ? (
             <View style={styles.emptyContainer}>
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   filterTabActive: {
-    borderBottomColor: '#6366F1',
+    borderBottomColor: '#6D9773',
   },
   filterText: {
     fontSize: 14,
@@ -224,7 +224,7 @@ const styles = StyleSheet.create({
     color: '#9CA3AF',
   },
   filterTextActive: {
-    color: '#6366F1',
+    color: '#6D9773',
   },
   scrollView: {
     flex: 1,
@@ -250,7 +250,7 @@ const styles = StyleSheet.create({
   dateBox: {
     width: 56,
     height: 56,
-    backgroundColor: '#6366F1',
+    backgroundColor: '#6D9773',
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
   participantText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#6366F1',
+    color: '#6D9773',
   },
   ageTag: {
     backgroundColor: '#F3F4F6',
