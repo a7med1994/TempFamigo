@@ -210,21 +210,74 @@ export default function DiscoverScreen() {
     </TouchableOpacity>
   );
 
+  const renderHeroCard = ({ item }: { item: typeof HERO_CARDS[0] }) => (
+    <View style={[styles.heroCard, { backgroundColor: item.bgColor }]}>
+      <Text style={styles.heroEmoji}>{item.emoji}</Text>
+      <Text style={[styles.heroTitle, { color: item.textColor }]}>{item.title}</Text>
+      <Text style={[styles.heroSubtitle, { color: item.textColor }]}>{item.subtitle}</Text>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
+      {/* Location Header */}
+      <View style={styles.locationHeader}>
+        <TouchableOpacity style={styles.locationButton}>
+          <Ionicons name="location" size={20} color="#6366F1" />
+          <Text style={styles.locationText}>
+            {user?.location?.city || 'Near me'}
+          </Text>
+          <Ionicons name="chevron-down" size={16} color="#6B7280" />
+        </TouchableOpacity>
+      </View>
+
       {/* Search Bar */}
       <View style={styles.searchContainer}>
         <View style={styles.searchBar}>
           <Ionicons name="search" size={20} color="#9CA3AF" />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search activities..."
+            placeholder="Find activities, playgrounds, farms…"
             value={searchQuery}
             onChangeText={setSearchQuery}
             onSubmitEditing={handleSearch}
             returnKeyType="search"
           />
         </View>
+      </View>
+
+      {/* Quick Filters */}
+      <View style={styles.quickFiltersContainer}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          {QUICK_FILTERS.map((filter) => (
+            <TouchableOpacity
+              key={filter.id}
+              style={[
+                styles.quickFilterChip,
+                selectedQuickFilter === filter.id && styles.quickFilterChipActive,
+              ]}
+              onPress={() =>
+                setSelectedQuickFilter(
+                  selectedQuickFilter === filter.id ? null : filter.id
+                )
+              }
+            >
+              <Ionicons
+                name={filter.icon as any}
+                size={14}
+                color={selectedQuickFilter === filter.id ? '#FFFFFF' : '#6366F1'}
+              />
+              <Text
+                style={[
+                  styles.quickFilterText,
+                  selectedQuickFilter === filter.id && styles.quickFilterTextActive,
+                ]}
+              >
+                {filter.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       </View>
 
       <ScrollView
@@ -234,6 +287,35 @@ export default function DiscoverScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
       >
+        {/* Hero Carousel */}
+        <View style={styles.heroSection}>
+          <FlatList
+            ref={heroScrollRef}
+            data={HERO_CARDS}
+            renderItem={renderHeroCard}
+            keyExtractor={(item) => item.id}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onMomentumScrollEnd={(event) => {
+              const index = Math.round(
+                event.nativeEvent.contentOffset.x / (width - 32)
+              );
+              setCurrentHeroIndex(index);
+            }}
+          />
+          <View style={styles.heroPagination}>
+            {HERO_CARDS.map((_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.heroDot,
+                  currentHeroIndex === index && styles.heroDotActive,
+                ]}
+              />
+            ))}
+          </View>
+        </View>
         {/* AI Recommendations */}
         {recommendations.length > 0 && (
           <View style={styles.section}>
