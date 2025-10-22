@@ -466,6 +466,95 @@ async def confirm_booking(booking_id: str):
     )
     return {"success": True}
 
+# ==================== SOCIAL FEED ENDPOINTS ====================
+
+@api_router.post("/posts", response_model=Post)
+async def create_post(post: PostCreate):
+    post_dict = post.dict()
+    post_dict["likes"] = 0
+    post_dict["comment_count"] = 0
+    post_dict["created_at"] = datetime.utcnow()
+    
+    result = await db.posts.insert_one(post_dict)
+    post_dict["id"] = str(result.inserted_id)
+    return Post(**post_dict)
+
+@api_router.get("/posts", response_model=List[Post])
+async def get_posts(
+    is_public: Optional[bool] = None,
+    user_id: Optional[str] = None,
+    limit: int = 50
+):
+    query = {}
+    
+    if is_public is not None:
+        query["is_public"] = is_public
+    if user_id:
+        query["user_id"] = user_id
+    
+    posts = await db.posts.find(query).sort("created_at", -1).limit(limit).to_list(limit)
+    return [Post(**serialize_doc(p)) for p in posts]
+
+@api_router.get("/posts/{post_id}", response_model=Post)
+async def get_post(post_id: str):
+    post = await db.posts.find_one({"_id": ObjectId(post_id)})
+    if not post:
+        raise HTTPException(status_code=404, detail="Post not found")
+    return Post(**serialize_doc(post))
+
+@api_router.post("/posts/{post_id}/like")
+async def like_post(post_id: str, reaction: dict):
+    # Check if user already liked
+    existing = await db.reactions.find_one({
+        "post_id": post_id,
+        "user_id": reaction["user_id"]
+    })
+    
+    if existing:
+        # Unlike
+        await db.reactions.delete_one({"_id": existing["_id"]})
+        await db.posts.update_one(
+            {"_id": ObjectId(post_id)},
+            {"$inc": {"likes": -1}}
+        )
+        return {"success": True, "action": "unliked"}
+    else:
+        # Like
+        reaction_doc = {
+            "post_id": post_id,
+            "user_id": reaction["user_id"],
+            "user_name": reaction["user_name"],
+            "reaction_type": reaction.get("reaction_type", "like"),
+            "created_at": datetime.utcnow()
+        }
+        await db.reactions.insert_one(reaction_doc)
+        await db.posts.update_one(
+            {"_id": ObjectId(post_id)},
+            {"$inc": {"likes": 1}}
+        )
+        return {"success": True, "action": "liked"}
+
+@api_router.post("/posts/{post_id}/comments", response_model=Comment)
+async def create_comment(post_id: str, comment: CommentCreate):
+    comment_dict = comment.dict()
+    comment_dict["created_at"] = datetime.utcnow()
+    
+    result = await db.comments.insert_one(comment_dict)
+    comment_dict["id"] = str(result.inserted_id)
+    
+    # Update comment count
+    await db.posts.update_one(
+        {"_id": ObjectId(post_id)},
+        {"$inc": {"comment_count": 1}}
+    )
+    
+    return Comment(**comment_dict)
+
+@api_router.get("/posts/{post_id}/comments", response_model=List[Comment])
+async def get_post_comments(post_id: str):
+    comments = await db.comments.find({"post_id": post_id}).sort("created_at", 1).to_list(100)
+    return [Comment(**serialize_doc(c)) for c in comments]
+
 # Root endpoint
 @api_router.get("/")
 async def root():
