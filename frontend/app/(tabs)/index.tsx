@@ -191,7 +191,7 @@ export default function DiscoverScreen() {
         
         <View style={styles.venueFooter}>
           <View style={styles.ratingContainer}>
-            <Ionicons name="star" size={14} color="#FFBA00" />
+            <Ionicons name="star" size={16} color="#FFBA00" />
             <Text style={styles.ratingText}>
               {venue.rating > 0 ? venue.rating.toFixed(1) : 'New'}
             </Text>
