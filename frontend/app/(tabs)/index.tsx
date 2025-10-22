@@ -223,7 +223,7 @@ export default function DiscoverScreen() {
       {/* Location Header */}
       <View style={styles.locationHeader}>
         <TouchableOpacity style={styles.locationButton}>
-          <Ionicons name="location" size={20} color="#6D9773" />
+          <Ionicons name="location" size={20} color="#BB8A52" />
           <Text style={styles.locationText}>
             {user?.location?.city || 'Near me'}
           </Text>
