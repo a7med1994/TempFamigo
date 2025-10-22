@@ -509,7 +509,7 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 8,
     fontSize: 16,
-    color: '#1F2937',
+    color: '#0C3B2E',
   },
   quickFiltersContainer: {
     backgroundColor: '#FFFFFF',
@@ -604,7 +604,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1F2937',
+    color: '#0C3B2E',
     marginLeft: 8,
   },
   sectionSubtitle: {
@@ -673,7 +673,7 @@ const styles = StyleSheet.create({
   venueName: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1F2937',
+    color: '#0C3B2E',
     marginBottom: 4,
   },
   venueCategory: {
@@ -701,7 +701,7 @@ const styles = StyleSheet.create({
   ratingText: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1F2937',
+    color: '#0C3B2E',
     marginLeft: 4,
   },
   reviewCount: {

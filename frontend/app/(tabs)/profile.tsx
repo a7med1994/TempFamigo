@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1F2937',
+    color: '#0C3B2E',
   },
   userLocation: {
     fontSize: 14,
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1F2937',
+    color: '#0C3B2E',
     marginBottom: 16,
   },
   inputGroup: {
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#1F2937',
+    color: '#0C3B2E',
   },
   saveButton: {
     backgroundColor: '#6D9773',
@@ -281,7 +281,7 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1F2937',
+    color: '#0C3B2E',
     marginTop: 8,
   },
   statLabel: {

@@ -415,7 +415,7 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1F2937',
+    color: '#0C3B2E',
   },
   postTime: {
     fontSize: 12,
@@ -504,7 +504,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1F2937',
+    color: '#0C3B2E',
   },
   commentsList: {
     flex: 1,
@@ -539,7 +539,7 @@ const styles = StyleSheet.create({
   commentUserName: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#1F2937',
+    color: '#0C3B2E',
     marginBottom: 4,
   },
   commentText: {

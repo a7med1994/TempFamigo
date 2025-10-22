@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
   eventTitle: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1F2937',
+    color: '#0C3B2E',
     marginBottom: 4,
   },
   eventHost: {

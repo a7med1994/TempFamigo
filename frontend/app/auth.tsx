@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
   socialButtonText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1F2937',
+    color: '#0C3B2E',
   },
   divider: {
     flexDirection: 'row',
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 14,
     fontSize: 16,
-    color: '#1F2937',
+    color: '#0C3B2E',
   },
   continueButton: {
     backgroundColor: '#6D9773',

@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
   venueName: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#1F2937',
+    color: '#0C3B2E',
     marginBottom: 8,
   },
   ratingRow: {
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
   ratingText: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#1F2937',
+    color: '#0C3B2E',
     marginLeft: 4,
   },
   reviewCount: {
@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#1F2937',
+    color: '#0C3B2E',
     marginLeft: 8,
   },
   address: {
@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
   reviewerName: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#1F2937',
+    color: '#0C3B2E',
   },
   reviewRating: {
     flexDirection: 'row',
@@ -454,7 +454,7 @@ const styles = StyleSheet.create({
   reviewRatingText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#1F2937',
+    color: '#0C3B2E',
   },
   reviewComment: {
     fontSize: 14,
