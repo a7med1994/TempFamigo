@@ -127,9 +127,22 @@ export default function CreateEventScreen() {
 
       console.log('Post created in community feed');
 
-      Alert.alert('Success!', 'Your event has been created and posted to the community feed!', [
-        { text: 'OK', onPress: () => router.back() }
-      ]);
+      Alert.alert(
+        '🎉 Event Created!', 
+        `"${title}" has been created successfully!\n\nYou can see it in the Events tab and Community feed.`,
+        [
+          { 
+            text: 'View Events', 
+            onPress: () => {
+              router.back();
+              // Small delay to ensure navigation completes
+              setTimeout(() => {
+                router.push('/(tabs)/events');
+              }, 100);
+            }
+          }
+        ]
+      );
     } catch (error: any) {
       console.error('Error creating event:', error);
       console.error('Error details:', error.response?.data);
