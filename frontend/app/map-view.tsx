@@ -124,77 +124,87 @@ export default function MapViewScreen() {
         </View>
       </View>
 
-      {/* Map */}
-      {loading || !userLocation ? (
+      {/* List View (Web-compatible) */}
+      {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#6D9773" />
-          <Text style={styles.loadingText}>Loading map...</Text>
+          <Text style={styles.loadingText}>Loading nearby places...</Text>
         </View>
       ) : (
-        <MapView
-          style={styles.map}
-          provider={PROVIDER_GOOGLE}
-          initialRegion={userLocation}
-          showsUserLocation={true}
-          showsMyLocationButton={false}
-        >
-          {/* Venue Markers */}
-          {showVenues && venues.map((venue) => (
-            <Marker
-              key={`venue-${venue.id}`}
-              coordinate={{
-                latitude: venue.location.coordinates.lat,
-                longitude: venue.location.coordinates.lng,
-              }}
-              pinColor={getMarkerColor(venue.category)}
-            >
-              <View style={[styles.customMarker, { backgroundColor: getMarkerColor(venue.category) }]}>
-                <Ionicons name="business" size={20} color="#FFFFFF" />
-              </View>
-              <Callout onPress={() => router.push(`/venue/${venue.id}`)}>
-                <View style={styles.callout}>
-                  <Text style={styles.calloutTitle}>{venue.name}</Text>
-                  <Text style={styles.calloutCategory}>{venue.category}</Text>
-                  <View style={styles.calloutRating}>
-                    <Ionicons name="star" size={14} color="#FFBA00" />
-                    <Text style={styles.calloutRatingText}>
-                      {venue.rating > 0 ? venue.rating.toFixed(1) : 'New'}
-                    </Text>
+        <ScrollView style={styles.listContainer}>
+          {/* Venues Section */}
+          {showVenues && venues.length > 0 && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>📍 Nearby Venues ({venues.length})</Text>
+              {venues.map((venue) => (
+                <TouchableOpacity
+                  key={venue.id}
+                  style={styles.listItem}
+                  onPress={() => router.push(`/venue/${venue.id}`)}
+                >
+                  <View style={[styles.iconCircle, { backgroundColor: getMarkerColor(venue.category) }]}>
+                    <Ionicons name="business" size={24} color="#FFFFFF" />
                   </View>
-                  <Text style={styles.calloutPrice}>
-                    {venue.pricing?.type === 'free' ? 'FREE' : `$${venue.pricing?.amount}`}
-                  </Text>
-                  <Text style={styles.calloutTap}>Tap to view details →</Text>
-                </View>
-              </Callout>
-            </Marker>
-          ))}
+                  <View style={styles.itemContent}>
+                    <Text style={styles.itemTitle}>{venue.name}</Text>
+                    <Text style={styles.itemCategory}>{venue.category}</Text>
+                    <View style={styles.itemMeta}>
+                      <View style={styles.ratingRow}>
+                        <Ionicons name="star" size={14} color="#FFBA00" />
+                        <Text style={styles.ratingText}>
+                          {venue.rating > 0 ? venue.rating.toFixed(1) : 'New'}
+                        </Text>
+                      </View>
+                      <Text style={styles.priceText}>
+                        {venue.pricing?.type === 'free' ? 'FREE' : `$${venue.pricing?.amount}`}
+                      </Text>
+                    </View>
+                    {venue.location?.address && (
+                      <Text style={styles.itemAddress}>{venue.location.address}</Text>
+                    )}
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color="#6B7280" />
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
 
-          {/* Event Markers */}
-          {showEvents && events.map((event) => (
-            <Marker
-              key={`event-${event.id}`}
-              coordinate={{
-                latitude: event.location.coordinates.lat,
-                longitude: event.location.coordinates.lng,
-              }}
-            >
-              <View style={[styles.customMarker, { backgroundColor: '#3B82F6' }]}>
-                <Ionicons name="calendar" size={20} color="#FFFFFF" />
-              </View>
-              <Callout onPress={() => router.push(`/event/${event.id}`)}>
-                <View style={styles.callout}>
-                  <Text style={styles.calloutTitle}>{event.title}</Text>
-                  <Text style={styles.calloutHost}>By {event.host_name}</Text>
-                  <Text style={styles.calloutDate}>
-                    {new Date(event.date).toLocaleDateString()}
-                  </Text>
-                  <Text style={styles.calloutTap}>Tap to view details →</Text>
-                </View>
-              </Callout>
-            </Marker>
-          ))}
-        </MapView>
+          {/* Events Section */}
+          {showEvents && events.length > 0 && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>📅 Nearby Events ({events.length})</Text>
+              {events.map((event) => (
+                <TouchableOpacity
+                  key={event.id}
+                  style={styles.listItem}
+                  onPress={() => router.push(`/event/${event.id}`)}
+                >
+                  <View style={[styles.iconCircle, { backgroundColor: '#3B82F6' }]}>
+                    <Ionicons name="calendar" size={24} color="#FFFFFF" />
+                  </View>
+                  <View style={styles.itemContent}>
+                    <Text style={styles.itemTitle}>{event.title}</Text>
+                    <Text style={styles.itemHost}>By {event.host_name}</Text>
+                    <Text style={styles.itemDate}>
+                      {new Date(event.date).toLocaleDateString()}
+                    </Text>
+                    {event.location?.address && (
+                      <Text style={styles.itemAddress}>{event.location.address}</Text>
+                    )}
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color="#6B7280" />
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+
+          {venues.length === 0 && events.length === 0 && (
+            <View style={styles.emptyContainer}>
+              <Ionicons name="location-outline" size={64} color="#9CA3AF" />
+              <Text style={styles.emptyText}>No nearby places found</Text>
+            </View>
+          )}
+        </ScrollView>
       )}
 
       {/* Filter Buttons */}
