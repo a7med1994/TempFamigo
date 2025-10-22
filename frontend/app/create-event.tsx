@@ -232,28 +232,65 @@ export default function CreateEventScreen() {
             )}
           </View>
 
-          {/* Date & Time */}
+          {/* Date & Time Pickers */}
           <View style={styles.row}>
             <View style={[styles.inputGroup, styles.flex1]}>
               <Text style={styles.label}>Date *</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="YYYY-MM-DD"
-                value={date}
-                onChangeText={setDate}
-              />
+              <TouchableOpacity
+                style={styles.datePickerButton}
+                onPress={() => setShowDatePicker(true)}
+              >
+                <Ionicons name="calendar" size={20} color="#BB8A52" />
+                <Text style={styles.datePickerText}>
+                  {format(eventDate, 'MMM d, yyyy')}
+                </Text>
+              </TouchableOpacity>
             </View>
 
             <View style={[styles.inputGroup, styles.flex1]}>
-              <Text style={styles.label}>Time</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="10:00"
-                value={time}
-                onChangeText={setTime}
-              />
+              <Text style={styles.label}>Time *</Text>
+              <TouchableOpacity
+                style={styles.datePickerButton}
+                onPress={() => setShowTimePicker(true)}
+              >
+                <Ionicons name="time" size={20} color="#BB8A52" />
+                <Text style={styles.datePickerText}>
+                  {format(eventDate, 'h:mm a')}
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
+
+          {/* Date Picker Modal */}
+          {showDatePicker && (
+            <DateTimePicker
+              value={eventDate}
+              mode="date"
+              display="default"
+              onChange={(event, selectedDate) => {
+                setShowDatePicker(false);
+                if (selectedDate) {
+                  setEventDate(selectedDate);
+                }
+              }}
+              minimumDate={new Date()}
+            />
+          )}
+
+          {/* Time Picker Modal */}
+          {showTimePicker && (
+            <DateTimePicker
+              value={eventDate}
+              mode="time"
+              display="default"
+              onChange={(event, selectedTime) => {
+                setShowTimePicker(false);
+                if (selectedTime) {
+                  setEventDate(selectedTime);
+                }
+              }}
+            />
+          )}
 
           {/* Location */}
           <View style={styles.inputGroup}>
