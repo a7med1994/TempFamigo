@@ -371,9 +371,12 @@ export default function CreateEventScreen() {
 
           {/* Create Button */}
           <TouchableOpacity
-            style={[styles.createButton, isCreating && styles.createButtonDisabled]}
+            style={[
+              styles.createButton,
+              (isCreating || !isFormValid()) && styles.createButtonDisabled
+            ]}
             onPress={handleCreateEvent}
-            disabled={isCreating}
+            disabled={isCreating || !isFormValid()}
           >
             {isCreating ? (
               <>
@@ -383,7 +386,9 @@ export default function CreateEventScreen() {
             ) : (
               <>
                 <Ionicons name="add-circle" size={20} color="#FFFFFF" />
-                <Text style={styles.createButtonText}>Create Event</Text>
+                <Text style={styles.createButtonText}>
+                  {isFormValid() ? 'Create Event' : 'Fill All Required Fields'}
+                </Text>
               </>
             )}
           </TouchableOpacity>
