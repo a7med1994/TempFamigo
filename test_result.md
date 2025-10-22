@@ -244,17 +244,35 @@ frontend:
           agent: "main"
           comment: "Implemented events screen: filter tabs (all/public/private), event cards with date, time, location, host, participant count. FAB for create event (placeholder)."
   
-  - task: "Profile screen with user setup"
+  - task: "Profile screen with user setup and photo upload"
     implemented: true
     working: "NA"
     file: "/app/frontend/app/(tabs)/profile.tsx"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
         - working: "NA"
           agent: "main"
           comment: "Implemented profile screen: user profile form (name, city, kids ages), edit mode, quick stats display. Uses zustand store and AsyncStorage for persistence."
+        - working: "NA"
+          agent: "main"
+          comment: "Added profile photo upload functionality using expo-image-picker. User can tap avatar to select/change photo. Photo stored in zustand state and displayed in header and drawer."
+  
+  - task: "Event detail screen with RSVP"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/app/event/[id].tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: false
+          agent: "user"
+          comment: "User reported: Event details not working when pressed from events list"
+        - working: "NA"
+          agent: "main"
+          comment: "Implemented complete event detail screen: displays event info (date, time, location, host, participants, age range), photo, description, attendees list with avatars. Added RSVP/Join button with API integration. Fixed routing in _layout.tsx."
   
   - task: "State management with Zustand"
     implemented: true
