@@ -16,8 +16,10 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useStore } from '../store/useStore';
 import api from '../utils/api';
+import { format } from 'date-fns';
 
 export default function CreateEventScreen() {
   const { user } = useStore();
