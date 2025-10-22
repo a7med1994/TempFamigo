@@ -238,7 +238,7 @@
             }
 
             // Test password with stats endpoint
-            fetch(`/admin/stats?password=${adminPassword}`)
+            fetch(`/api/admin/stats?password=${adminPassword}`)
                 .then(res => {
                     if (res.status === 401) {
                         alert('Invalid password!');
