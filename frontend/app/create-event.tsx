@@ -268,9 +268,16 @@ export default function CreateEventScreen() {
               mode="date"
               display="default"
               onChange={(event, selectedDate) => {
-                setShowDatePicker(false);
-                if (selectedDate) {
-                  setEventDate(selectedDate);
+                setShowDatePicker(Platform.OS === 'ios'); // Keep open on iOS
+                if (event.type === 'set' && selectedDate) {
+                  // Combine selected date with existing time
+                  const newDate = new Date(selectedDate);
+                  newDate.setHours(eventDate.getHours());
+                  newDate.setMinutes(eventDate.getMinutes());
+                  setEventDate(newDate);
+                  if (Platform.OS !== 'ios') {
+                    setShowDatePicker(false);
+                  }
                 }
               }}
               minimumDate={new Date()}
@@ -284,9 +291,16 @@ export default function CreateEventScreen() {
               mode="time"
               display="default"
               onChange={(event, selectedTime) => {
-                setShowTimePicker(false);
-                if (selectedTime) {
-                  setEventDate(selectedTime);
+                setShowTimePicker(Platform.OS === 'ios'); // Keep open on iOS
+                if (event.type === 'set' && selectedTime) {
+                  // Combine existing date with selected time
+                  const newDate = new Date(eventDate);
+                  newDate.setHours(selectedTime.getHours());
+                  newDate.setMinutes(selectedTime.getMinutes());
+                  setEventDate(newDate);
+                  if (Platform.OS !== 'ios') {
+                    setShowTimePicker(false);
+                  }
                 }
               }}
             />
