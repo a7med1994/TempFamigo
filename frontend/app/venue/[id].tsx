@@ -165,7 +165,7 @@ export default function VenueDetailScreen() {
             {/* Rating */}
             <View style={styles.ratingRow}>
               <View style={styles.rating}>
-                <Ionicons name="star" size={20} color="#FCD34D" />
+                <Ionicons name="star" size={20} color="#FFBA00" />
                 <Text style={styles.ratingText}>
                   {venue.rating > 0 ? venue.rating.toFixed(1) : 'New'}
                 </Text>
@@ -254,7 +254,7 @@ export default function VenueDetailScreen() {
                   <View style={styles.reviewHeader}>
                     <Text style={styles.reviewerName}>{review.user_name}</Text>
                     <View style={styles.reviewRating}>
-                      <Ionicons name="star" size={14} color="#FCD34D" />
+                      <Ionicons name="star" size={14} color="#FFBA00" />
                       <Text style={styles.reviewRatingText}>{review.rating}</Text>
                     </View>
                   </View>
