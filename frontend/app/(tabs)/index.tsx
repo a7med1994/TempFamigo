@@ -590,7 +590,7 @@ const styles = StyleSheet.create({
   },
   heroDotActive: {
     width: 24,
-    backgroundColor: '#6366F1',
+    backgroundColor: '#6D9773',
   },
   section: {
     marginTop: 16,
