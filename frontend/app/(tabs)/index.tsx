@@ -87,7 +87,22 @@ export default function DiscoverScreen() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedAgeRange, setSelectedAgeRange] = useState<any>(null);
   const [selectedPriceType, setSelectedPriceType] = useState('all');
+  const [selectedQuickFilter, setSelectedQuickFilter] = useState<string | null>(null);
+  const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
+  const heroScrollRef = useRef<FlatList>(null);
   const { user } = useStore();
+
+  // Auto-scroll hero carousel
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentHeroIndex((prev) => {
+        const nextIndex = (prev + 1) % HERO_CARDS.length;
+        heroScrollRef.current?.scrollToIndex({ index: nextIndex, animated: true });
+        return nextIndex;
+      });
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     fetchVenues();
