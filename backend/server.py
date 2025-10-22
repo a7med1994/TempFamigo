@@ -558,6 +558,15 @@ async def get_post_comments(post_id: str):
     comments = await db.comments.find({"post_id": post_id}).sort("created_at", 1).to_list(100)
     return [Comment(**serialize_doc(c)) for c in comments]
 
+# Admin panel route
+@app.get("/admin-panel", response_class=HTMLResponse)
+async def admin_panel():
+    try:
+        with open("/app/backend/static/admin.html", "r") as f:
+            return HTMLResponse(content=f.read())
+    except:
+        return HTMLResponse("<h1>Admin panel not found</h1>")
+
 # Root endpoint
 @api_router.get("/")
 async def root():
