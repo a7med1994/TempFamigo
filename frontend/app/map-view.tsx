@@ -331,6 +331,8 @@ export default function BrowseCategoriesScreen() {
           })}
         </View>
       </ScrollView>
+        </>
+      )}
     </View>
   );
 }
