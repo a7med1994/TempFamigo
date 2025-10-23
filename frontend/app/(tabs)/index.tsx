@@ -606,6 +606,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.lg,
   },
+  heroHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  heroTextContainer: {
+    flex: 1,
+  },
   heroTitle: {
     ...Typography.h1,
     marginBottom: Spacing.xs,
@@ -613,6 +621,35 @@ const styles = StyleSheet.create({
   heroSubtitle: {
     ...Typography.body,
     color: Colors.textMedium,
+  },
+  filterButton: {
+    width: 48,
+    height: 48,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.backgroundCard,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    position: 'relative',
+  },
+  filterBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.round,
+    minWidth: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.xs,
+  },
+  filterBadgeText: {
+    ...Typography.caption,
+    color: Colors.backgroundCard,
+    fontWeight: '700',
+    fontSize: 10,
   },
   filtersSection: {
     marginBottom: Spacing.lg,
