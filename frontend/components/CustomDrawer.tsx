@@ -173,6 +173,18 @@ const styles = StyleSheet.create({
     borderTopColor: Colors.border,
     alignItems: 'center',
   },
+  dotsLogoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginBottom: Spacing.md,
+  },
+  dotLogo: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: '#244863',
+  },
   appName: {
     ...Typography.h3,
     color: Colors.primary,
