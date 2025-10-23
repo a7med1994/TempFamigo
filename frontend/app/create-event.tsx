@@ -21,10 +21,23 @@ import { useStore } from '../store/useStore';
 import api from '../utils/api';
 import { format } from 'date-fns';
 
+const EVENT_TYPES = [
+  { id: 'playdate', label: 'Playdate' },
+  { id: 'birthday', label: 'Birthday Party' },
+  { id: 'sports', label: 'Sports Activity' },
+  { id: 'arts', label: 'Arts & Crafts' },
+  { id: 'educational', label: 'Educational' },
+  { id: 'outdoor', label: 'Outdoor Adventure' },
+  { id: 'playgroup', label: 'Playgroup' },
+  { id: 'other', label: 'Other' },
+];
+
 export default function CreateEventScreen() {
   const { user } = useStore();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [eventType, setEventType] = useState('playdate');
+  const [showEventTypePicker, setShowEventTypePicker] = useState(false);
   const [eventDate, setEventDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
