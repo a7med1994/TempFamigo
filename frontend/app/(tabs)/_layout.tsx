@@ -3,7 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity, View, StyleSheet, Image } from 'react-native';
 import { useStore } from '../../store/useStore';
 import { useDrawer } from '../../contexts/DrawerContext';
-import { Colors } from '../../constants/DarkAirbnbTheme';
+import { Colors } from '../../constants/TotsuTheme';
 
 export default function TabsLayout() {
   const { user } = useStore();

@@ -10,7 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useStore } from '../store/useStore';
-import { Colors, Typography, Spacing, BorderRadius } from '../constants/DarkAirbnbTheme';
+import { Colors, Typography, Spacing, BorderRadius } from '../constants/TotsuTheme';
 
 interface CustomDrawerProps {
   onClose: () => void;

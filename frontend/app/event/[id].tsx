@@ -16,7 +16,7 @@ import { format } from 'date-fns';
 import * as Calendar from 'expo-calendar';
 import api from '../../utils/api';
 import { useStore } from '../../store/useStore';
-import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/DarkAirbnbTheme';
+import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/TotsuTheme';
 
 interface Event {
   id: string;

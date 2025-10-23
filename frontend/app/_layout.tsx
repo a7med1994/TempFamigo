@@ -3,7 +3,7 @@ import { Stack } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { loadUser } from '../store/useStore';
 import { DrawerProvider } from '../contexts/DrawerContext';
-import { Colors } from '../constants/DarkAirbnbTheme';
+import { Colors } from '../constants/TotsuTheme';
 import LoadingScreen from '../components/LoadingScreen';
 
 export default function RootLayout() {

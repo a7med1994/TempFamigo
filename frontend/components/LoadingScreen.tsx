@@ -6,7 +6,7 @@ import {
   Animated,
   Easing,
 } from 'react-native';
-import { Colors, Typography, Spacing } from '../constants/DarkAirbnbTheme';
+import { Colors, Typography, Spacing } from '../constants/TotsuTheme';
 
 export default function LoadingScreen() {
   const fadeAnim = useRef(new Animated.Value(0)).current;

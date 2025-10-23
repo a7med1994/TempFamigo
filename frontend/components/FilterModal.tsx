@@ -9,7 +9,7 @@ import {
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../constants/DarkAirbnbTheme';
+import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../constants/TotsuTheme';
 import { CATEGORIES, AGE_RANGES, PRICE_TYPES } from '../constants/Categories';
 
 interface FilterModalProps {
