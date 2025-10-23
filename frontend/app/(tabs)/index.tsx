@@ -610,9 +610,9 @@ const styles = StyleSheet.create({
   },
   categoriesSection: {
     marginBottom: Spacing.md,
+    paddingHorizontal: Spacing.md,
   },
   categoriesContent: {
-    paddingHorizontal: Spacing.md,
     gap: Spacing.sm,
   },
   categoryChip: {
