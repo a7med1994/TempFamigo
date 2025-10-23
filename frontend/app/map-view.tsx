@@ -24,11 +24,15 @@ let Callout: any = null;
 let PROVIDER_GOOGLE: any = null;
 
 if (Platform.OS !== 'web') {
-  const maps = require('react-native-maps');
-  MapView = maps.default;
-  Marker = maps.Marker;
-  Callout = maps.Callout;
-  PROVIDER_GOOGLE = maps.PROVIDER_GOOGLE;
+  try {
+    const maps = require('react-native-maps');
+    MapView = maps.default;
+    Marker = maps.Marker;
+    Callout = maps.Callout;
+    PROVIDER_GOOGLE = maps.PROVIDER_GOOGLE;
+  } catch (e) {
+    console.log('Maps not available');
+  }
 }
 
 const { width } = Dimensions.get('window');
