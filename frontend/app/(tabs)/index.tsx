@@ -493,7 +493,7 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
   },
   carouselCard: {
-    width: 160,
+    width: NETFLIX_CARD_WIDTH,
     backgroundColor: Colors.backgroundCard,
     borderRadius: BorderRadius.lg,
     overflow: 'hidden',
