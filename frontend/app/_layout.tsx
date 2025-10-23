@@ -21,7 +21,7 @@ export default function RootLayout() {
   }, []);
 
   if (isLoading) {
-    return <LoadingScreen />;
+    return <TotsuLoadingScreen />;
   }
 
   return (
