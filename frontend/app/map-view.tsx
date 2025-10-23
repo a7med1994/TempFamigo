@@ -177,55 +177,155 @@ export default function BrowseCategoriesScreen() {
         </View>
       </View>
 
-      {/* Stats Summary */}
-      <View style={styles.statsContainer}>
-        <View style={styles.statCard}>
-          <Text style={styles.statNumber}>{venues.length}</Text>
-          <Text style={styles.statLabel}>Venues</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Text style={styles.statNumber}>{events.length}</Text>
-          <Text style={styles.statLabel}>Events</Text>
-        </View>
-        <View style={styles.statCard}>
-          <Text style={styles.statNumber}>{CATEGORIES.length - 1}</Text>
-          <Text style={styles.statLabel}>Categories</Text>
-        </View>
-      </View>
+      {viewMode === 'grid' ? (
+        <>
+          {/* Stats Summary */}
+          <View style={styles.statsContainer}>
+            <View style={styles.statCard}>
+              <Text style={styles.statNumber}>{venues.length}</Text>
+              <Text style={styles.statLabel}>Venues</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Text style={styles.statNumber}>{events.length}</Text>
+              <Text style={styles.statLabel}>Events</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Text style={styles.statNumber}>{CATEGORIES.length - 1}</Text>
+              <Text style={styles.statLabel}>Categories</Text>
+            </View>
+          </View>
 
-      {/* Category Grid */}
-      <ScrollView 
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={styles.sectionTitle}>Explore by Category</Text>
-        <View style={styles.grid}>
-          {CATEGORIES.filter(cat => cat.id !== 'all').map((category, index) => {
-            const count = categoryCounts[category.id] || 0;
-            const bgColor = getCategoryColor(index);
-            
-            return (
-              <TouchableOpacity
-                key={category.id}
-                style={[styles.categoryCard, { backgroundColor: bgColor }]}
-                onPress={() => handleCategoryPress(category.id)}
-                activeOpacity={0.8}
-              >
-                <View style={styles.categoryIconContainer}>
-                  <Ionicons name={category.icon as any} size={32} color={Colors.backgroundCard} />
-                </View>
-                <Text style={styles.categoryTitle} numberOfLines={2}>
-                  {category.label}
-                </Text>
-                <View style={styles.categoryBadge}>
-                  <Text style={styles.categoryCount}>{count}</Text>
-                </View>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      </ScrollView>
+          {/* Category Grid */}
+          <ScrollView 
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            <Text style={styles.sectionTitle}>Explore by Category</Text>
+            <View style={styles.grid}>
+              {CATEGORIES.filter(cat => cat.id !== 'all').map((category, index) => {
+                const count = categoryCounts[category.id] || 0;
+                const bgColor = getCategoryColor(index);
+                
+                return (
+                  <TouchableOpacity
+                    key={category.id}
+                    style={[styles.categoryCard, { backgroundColor: bgColor }]}
+                    onPress={() => handleCategoryPress(category.id)}
+                    activeOpacity={0.8}
+                  >
+                    <View style={styles.categoryIconContainer}>
+                      <Ionicons name={category.icon as any} size={32} color={Colors.backgroundCard} />
+                    </View>
+                    <Text style={styles.categoryTitle} numberOfLines={2}>
+                      {category.label}
+                    </Text>
+                    <View style={styles.categoryBadge}>
+                      <Text style={styles.categoryCount}>{count}</Text>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </ScrollView>
+        </>
+      ) : (
+        <>
+          {/* Map View */}
+          {userLocation && Platform.OS !== 'web' ? (
+            <MapView
+              style={styles.map}
+              provider={PROVIDER_GOOGLE}
+              initialRegion={userLocation}
+              showsUserLocation={true}
+              showsMyLocationButton={true}
+            >
+              {/* Venue Markers */}
+              {venues.map((venue) => {
+                if (!venue.location?.coordinates?.lat || !venue.location?.coordinates?.lng) return null;
+                const isNew = isNewItem(venue);
+                
+                return (
+                  <Marker
+                    key={`venue-${venue.id || venue._id}`}
+                    coordinate={{
+                      latitude: venue.location.coordinates.lat,
+                      longitude: venue.location.coordinates.lng,
+                    }}
+                    pinColor={Colors.primary}
+                  >
+                    <View style={styles.customMarker}>
+                      <View style={[styles.markerIcon, { backgroundColor: Colors.primary }]}>
+                        <Ionicons name="business" size={20} color={Colors.backgroundCard} />
+                      </View>
+                      {isNew && (
+                        <View style={styles.newBadge}>
+                          <Text style={styles.newBadgeText}>NEW</Text>
+                        </View>
+                      )}
+                    </View>
+                    <Callout onPress={() => router.push(`/venue/${venue.id || venue._id}`)}>
+                      <View style={styles.callout}>
+                        <Text style={styles.calloutTitle}>{venue.name}</Text>
+                        <Text style={styles.calloutCategory}>{venue.category}</Text>
+                        {venue.rating > 0 && (
+                          <View style={styles.calloutRating}>
+                            <Ionicons name="star" size={12} color={Colors.secondary} />
+                            <Text style={styles.calloutRatingText}>{venue.rating.toFixed(1)}</Text>
+                          </View>
+                        )}
+                      </View>
+                    </Callout>
+                  </Marker>
+                );
+              })}
+
+              {/* Event Markers */}
+              {events.map((event) => {
+                if (!event.location?.coordinates?.lat || !event.location?.coordinates?.lng) return null;
+                const isNew = isNewItem(event);
+                
+                return (
+                  <Marker
+                    key={`event-${event.id || event._id}`}
+                    coordinate={{
+                      latitude: event.location.coordinates.lat,
+                      longitude: event.location.coordinates.lng,
+                    }}
+                    pinColor={Colors.accent1}
+                  >
+                    <View style={styles.customMarker}>
+                      <View style={[styles.markerIcon, { backgroundColor: Colors.accent1 }]}>
+                        <Ionicons name="calendar" size={20} color={Colors.backgroundCard} />
+                      </View>
+                      {isNew && (
+                        <View style={styles.newBadge}>
+                          <Text style={styles.newBadgeText}>NEW</Text>
+                        </View>
+                      )}
+                    </View>
+                    <Callout onPress={() => router.push(`/event/${event.id || event._id}`)}>
+                      <View style={styles.callout}>
+                        <Text style={styles.calloutTitle}>{event.title}</Text>
+                        <Text style={styles.calloutDate}>
+                          {new Date(event.date).toLocaleDateString()}
+                        </Text>
+                      </View>
+                    </Callout>
+                  </Marker>
+                );
+              })}
+            </MapView>
+          ) : (
+            <View style={styles.mapPlaceholder}>
+              <Ionicons name="map-outline" size={64} color={Colors.textLight} />
+              <Text style={styles.mapPlaceholderText}>
+                Map view is available on mobile devices
+              </Text>
+            </View>
+          )}
+        </>
+      )}
     </View>
   );
 }
