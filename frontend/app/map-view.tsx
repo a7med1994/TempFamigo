@@ -183,6 +183,8 @@ export default function BrowseCategoriesScreen() {
           {CATEGORIES.filter(cat => cat.id !== 'all').map((category, index) => {
             const count = categoryCounts[category.id] || 0;
             const bgColor = getCategoryColor(index);
+            // Show "New to You" for categories with Events or high recent activity
+            const isNew = category.id === 'events' || category.id === 'birthday';
             
             return (
               <TouchableOpacity
@@ -200,6 +202,11 @@ export default function BrowseCategoriesScreen() {
                 <View style={styles.categoryBadge}>
                   <Text style={styles.categoryCount}>{count}</Text>
                 </View>
+                {isNew && (
+                  <View style={styles.newBadge}>
+                    <Text style={styles.newBadgeText}>NEW</Text>
+                  </View>
+                )}
               </TouchableOpacity>
             );
           })}
