@@ -171,8 +171,12 @@ const styles = StyleSheet.create({
     ...Typography.h3,
     color: Colors.primary,
     marginBottom: Spacing.xs,
+    fontWeight: '700',
+    letterSpacing: 2,
   },
   tagline: {
     ...Typography.caption,
+    color: Colors.textLight,
+    letterSpacing: 1,
   },
 });
