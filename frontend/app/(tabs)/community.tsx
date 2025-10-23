@@ -17,6 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useStore } from '../../store/useStore';
 import { Colors, Typography, Spacing, BorderRadius, Shadows, REACTIONS } from '../../constants/NewTheme';
 import api from '../../utils/api';
+import ReactionPicker from '../../components/ReactionPicker';
 
 const isWeb = Platform.OS === 'web';
 
@@ -31,6 +32,15 @@ interface Post {
   comment_count: number;
   created_at: string;
   post_type: string;
+  user_reaction?: string;
+}
+
+interface Comment {
+  id: string;
+  user_name: string;
+  user_avatar?: string;
+  comment: string;
+  created_at: string;
 }
 
 export default function CommunityScreen() {
@@ -38,6 +48,11 @@ export default function CommunityScreen() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [showReactionPicker, setShowReactionPicker] = useState<string | null>(null);
+  const [showCommentsModal, setShowCommentsModal] = useState<string | null>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [commentText, setCommentText] = useState('');
+  const [loadingComments, setLoadingComments] = useState(false);
 
   useEffect(() => {
     fetchPosts();
@@ -56,7 +71,19 @@ export default function CommunityScreen() {
     }
   };
 
-  const handleLike = async (postId: string) => {
+  const fetchComments = async (postId: string) => {
+    try {
+      setLoadingComments(true);
+      const response = await api.get(`/posts/${postId}/comments`);
+      setComments(response.data);
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+    } finally {
+      setLoadingComments(false);
+    }
+  };
+
+  const handleReaction = async (postId: string, reactionId: string) => {
     if (!user?.id) {
       alert('Please complete your profile first');
       return;
@@ -66,10 +93,45 @@ export default function CommunityScreen() {
       await api.post(`/posts/${postId}/like`, {
         user_id: user.id,
         user_name: user.name,
+        reaction_type: reactionId,
       });
-      fetchPosts();
+      
+      // Update local state
+      setPosts(posts.map(post => {
+        if (post.id === postId) {
+          return { ...post, user_reaction: reactionId, likes: post.likes + 1 };
+        }
+        return post;
+      }));
     } catch (error) {
-      console.error('Error liking post:', error);
+      console.error('Error adding reaction:', error);
+    }
+  };
+
+  const handleAddComment = async (postId: string) => {
+    if (!user?.id || !commentText.trim()) {
+      return;
+    }
+
+    try {
+      await api.post(`/posts/${postId}/comment`, {
+        user_id: user.id,
+        user_name: user.name,
+        comment: commentText,
+      });
+      
+      setCommentText('');
+      fetchComments(postId);
+      
+      // Update comment count
+      setPosts(posts.map(post => {
+        if (post.id === postId) {
+          return { ...post, comment_count: post.comment_count + 1 };
+        }
+        return post;
+      }));
+    } catch (error) {
+      console.error('Error adding comment:', error);
     }
   };
 
@@ -78,8 +140,14 @@ export default function CommunityScreen() {
     fetchPosts();
   };
 
+  const handleOpenComments = (postId: string) => {
+    setShowCommentsModal(postId);
+    fetchComments(postId);
+  };
+
   const renderPost = (post: Post) => {
     const postId = post.id || (post as any)._id;
+    const userReaction = REACTIONS.find(r => r.id === post.user_reaction);
 
     return (
       <View key={postId} style={styles.postCard}>
@@ -101,7 +169,7 @@ export default function CommunityScreen() {
             </View>
           </View>
           <TouchableOpacity>
-            <Ionicons name="ellipsis-horizontal" size={20} color={Colors.medium} />
+            <Ionicons name="ellipsis-horizontal" size={20} color={Colors.textLight} />
           </TouchableOpacity>
         </View>
 
@@ -123,21 +191,46 @@ export default function CommunityScreen() {
 
         {/* Post Actions */}
         <View style={styles.postActions}>
+          <View style={styles.reactionContainer}>
+            <TouchableOpacity
+              style={styles.actionButton}
+              onPress={() => {
+                if (post.user_reaction) {
+                  handleReaction(postId, post.user_reaction);
+                } else {
+                  setShowReactionPicker(postId);
+                }
+              }}
+              onLongPress={() => setShowReactionPicker(postId)}
+            >
+              {userReaction ? (
+                <Text style={styles.reactionEmoji}>{userReaction.emoji}</Text>
+              ) : (
+                <Ionicons name="heart-outline" size={22} color={Colors.textDark} />
+              )}
+              <Text style={styles.actionText}>{post.likes} {userReaction?.label || 'Like'}</Text>
+            </TouchableOpacity>
+
+            {showReactionPicker === postId && (
+              <ReactionPicker
+                visible={true}
+                selectedReaction={post.user_reaction}
+                onSelect={(reactionId) => handleReaction(postId, reactionId)}
+                onClose={() => setShowReactionPicker(null)}
+              />
+            )}
+          </View>
+
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => handleLike(postId)}
+            onPress={() => handleOpenComments(postId)}
           >
-            <Ionicons name="heart-outline" size={22} color={Colors.dark} />
-            <Text style={styles.actionText}>{post.likes} likes</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="chatbubble-outline" size={22} color={Colors.dark} />
+            <Ionicons name="chatbubble-outline" size={22} color={Colors.textDark} />
             <Text style={styles.actionText}>{post.comment_count} comments</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="share-outline" size={22} color={Colors.dark} />
+            <Ionicons name="share-outline" size={22} color={Colors.textDark} />
             <Text style={styles.actionText}>Share</Text>
           </TouchableOpacity>
         </View>
@@ -205,7 +298,7 @@ export default function CommunityScreen() {
             </View>
           ) : posts.length === 0 ? (
             <View style={styles.emptyContainer}>
-              <Ionicons name="people-outline" size={64} color={Colors.light} />
+              <Ionicons name="people-outline" size={64} color={Colors.border} />
               <Text style={styles.emptyTitle}>No posts yet</Text>
               <Text style={styles.emptyText}>
                 Be the first to share your experience!
@@ -224,6 +317,80 @@ export default function CommunityScreen() {
       >
         <Ionicons name="add" size={28} color={Colors.background} />
       </TouchableOpacity>
+
+      {/* Comments Modal */}
+      <Modal
+        visible={showCommentsModal !== null}
+        animationType="slide"
+        onRequestClose={() => setShowCommentsModal(null)}
+      >
+        <KeyboardAvoidingView
+          style={styles.commentsModal}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <View style={styles.commentsHeader}>
+            <TouchableOpacity
+              onPress={() => setShowCommentsModal(null)}
+              style={styles.closeButton}
+            >
+              <Ionicons name="close" size={24} color={Colors.textDark} />
+            </TouchableOpacity>
+            <Text style={styles.commentsTitle}>Comments</Text>
+            <View style={styles.placeholder} />
+          </View>
+
+          <ScrollView style={styles.commentsList}>
+            {loadingComments ? (
+              <Text style={styles.loadingText}>Loading comments...</Text>
+            ) : comments.length === 0 ? (
+              <View style={styles.emptyComments}>
+                <Text style={styles.emptyCommentsText}>No comments yet. Be the first!</Text>
+              </View>
+            ) : (
+              comments.map((comment) => (
+                <View key={comment.id} style={styles.commentItem}>
+                  {comment.user_avatar ? (
+                    <Image source={{ uri: comment.user_avatar }} style={styles.commentAvatar} />
+                  ) : (
+                    <View style={styles.commentAvatarPlaceholder}>
+                      <Ionicons name="person" size={16} color={Colors.primary} />
+                    </View>
+                  )}
+                  <View style={styles.commentContent}>
+                    <Text style={styles.commentUserName}>{comment.user_name}</Text>
+                    <Text style={styles.commentText}>{comment.comment}</Text>
+                    <Text style={styles.commentTime}>
+                      {new Date(comment.created_at).toLocaleDateString()}
+                    </Text>
+                  </View>
+                </View>
+              ))
+            )}
+          </ScrollView>
+
+          <View style={styles.commentInputContainer}>
+            <TextInput
+              style={styles.commentInput}
+              placeholder="Write a comment..."
+              placeholderTextColor={Colors.textLight}
+              value={commentText}
+              onChangeText={setCommentText}
+              multiline
+            />
+            <TouchableOpacity
+              style={styles.sendButton}
+              onPress={() => showCommentsModal && handleAddComment(showCommentsModal)}
+              disabled={!commentText.trim()}
+            >
+              <Ionicons 
+                name="send" 
+                size={20} 
+                color={commentText.trim() ? Colors.primary : Colors.textLight} 
+              />
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </View>
   );
 }
@@ -231,7 +398,7 @@ export default function CommunityScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.backgroundGray,
+    backgroundColor: Colors.background,
   },
   scrollView: {
     flex: 1,
@@ -240,7 +407,7 @@ const styles = StyleSheet.create({
     paddingBottom: 80,
   },
   createPostSection: {
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.backgroundCard,
     padding: Spacing.md,
     marginBottom: Spacing.sm,
     ...Shadows.small,
@@ -260,22 +427,22 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.backgroundGray,
+    backgroundColor: Colors.background,
     justifyContent: 'center',
     alignItems: 'center',
   },
   createPostInput: {
     flex: 1,
-    backgroundColor: Colors.backgroundGray,
+    backgroundColor: Colors.background,
     borderRadius: BorderRadius.round,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.light,
+    borderColor: Colors.border,
   },
   createPostPlaceholder: {
     ...Typography.body,
-    color: Colors.medium,
+    color: Colors.textLight,
   },
   createPostActions: {
     flexDirection: 'row',
@@ -295,7 +462,7 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   postCard: {
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.backgroundCard,
     padding: Spacing.md,
     marginBottom: Spacing.sm,
     ...Shadows.small,
@@ -320,7 +487,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: Colors.backgroundGray,
+    backgroundColor: Colors.background,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -353,7 +520,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     paddingTop: Spacing.md,
     borderTopWidth: 1,
-    borderTopColor: Colors.light,
+    borderTopColor: Colors.border,
+  },
+  reactionContainer: {
+    position: 'relative',
   },
   actionButton: {
     flexDirection: 'row',
@@ -363,6 +533,9 @@ const styles = StyleSheet.create({
   actionText: {
     ...Typography.bodySmall,
   },
+  reactionEmoji: {
+    fontSize: 20,
+  },
   eventLink: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -370,7 +543,7 @@ const styles = StyleSheet.create({
     marginTop: Spacing.md,
     paddingTop: Spacing.md,
     borderTopWidth: 1,
-    borderTopColor: Colors.light,
+    borderTopColor: Colors.border,
   },
   eventLinkText: {
     ...Typography.bodySmall,
@@ -383,7 +556,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     ...Typography.body,
-    color: Colors.medium,
+    color: Colors.textLight,
   },
   emptyContainer: {
     padding: Spacing.xxl,
@@ -409,5 +582,98 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     ...Shadows.large,
+  },
+  commentsModal: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+  commentsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: Spacing.md,
+    backgroundColor: Colors.backgroundCard,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  closeButton: {
+    padding: Spacing.xs,
+  },
+  commentsTitle: {
+    ...Typography.h4,
+  },
+  placeholder: {
+    width: 40,
+  },
+  commentsList: {
+    flex: 1,
+    padding: Spacing.md,
+  },
+  emptyComments: {
+    padding: Spacing.xl,
+    alignItems: 'center',
+  },
+  emptyCommentsText: {
+    ...Typography.body,
+    color: Colors.textLight,
+  },
+  commentItem: {
+    flexDirection: 'row',
+    marginBottom: Spacing.md,
+    gap: Spacing.md,
+  },
+  commentAvatar: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+  },
+  commentAvatarPlaceholder: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: Colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  commentContent: {
+    flex: 1,
+    backgroundColor: Colors.backgroundCard,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+  },
+  commentUserName: {
+    ...Typography.bodySmall,
+    fontWeight: '600',
+    marginBottom: Spacing.xs,
+  },
+  commentText: {
+    ...Typography.body,
+    marginBottom: Spacing.xs,
+  },
+  commentTime: {
+    ...Typography.caption,
+  },
+  commentInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    padding: Spacing.md,
+    backgroundColor: Colors.backgroundCard,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+    gap: Spacing.md,
+  },
+  commentInput: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    maxHeight: 100,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    ...Typography.body,
+  },
+  sendButton: {
+    padding: Spacing.sm,
   },
 });
