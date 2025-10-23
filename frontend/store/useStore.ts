@@ -33,7 +33,7 @@ interface AppState {
   isFavorite: (itemId: string) => boolean;
 }
 
-export const useStore = create<AppState>((set) => ({
+export const useStore = create<AppState>((set, get) => ({
   user: null,
   setUser: (user) => {
     set({ user });
@@ -42,6 +42,24 @@ export const useStore = create<AppState>((set) => ({
   clearUser: () => {
     set({ user: null });
     AsyncStorage.removeItem('famigo_user');
+  },
+  favorites: [],
+  setFavorites: (favorites) => {
+    set({ favorites });
+    AsyncStorage.setItem('famigo_favorites', JSON.stringify(favorites));
+  },
+  addFavorite: (favorite) => {
+    const newFavorites = [...get().favorites, favorite];
+    set({ favorites: newFavorites });
+    AsyncStorage.setItem('famigo_favorites', JSON.stringify(newFavorites));
+  },
+  removeFavorite: (itemId) => {
+    const newFavorites = get().favorites.filter(f => f.item_id !== itemId);
+    set({ favorites: newFavorites });
+    AsyncStorage.setItem('famigo_favorites', JSON.stringify(newFavorites));
+  },
+  isFavorite: (itemId) => {
+    return get().favorites.some(f => f.item_id === itemId);
   },
 }));
 
