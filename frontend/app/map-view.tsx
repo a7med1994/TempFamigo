@@ -122,21 +122,8 @@ export default function BrowseCategoriesScreen() {
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color={Colors.backgroundCard} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Explore</Text>
-        <View style={styles.headerRight}>
-          <TouchableOpacity
-            style={[styles.viewToggle, viewMode === 'grid' && styles.viewToggleActive]}
-            onPress={() => setViewMode('grid')}
-          >
-            <Ionicons name="grid" size={20} color={viewMode === 'grid' ? Colors.primary : Colors.backgroundCard} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.viewToggle, viewMode === 'map' && styles.viewToggleActive]}
-            onPress={() => setViewMode('map')}
-          >
-            <Ionicons name="map" size={20} color={viewMode === 'map' ? Colors.primary : Colors.backgroundCard} />
-          </TouchableOpacity>
-        </View>
+        <Text style={styles.headerTitle}>Browse Categories</Text>
+        <View style={styles.placeholder} />
       </View>
 
       {/* Stats Summary */}
