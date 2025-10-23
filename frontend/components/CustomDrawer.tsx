@@ -79,8 +79,8 @@ export default function CustomDrawer({ onClose }: CustomDrawerProps) {
 
       {/* Footer */}
       <View style={styles.footer}>
-        <Text style={styles.appName}>Famigo</Text>
-        <Text style={styles.tagline}>Find Your Next Adventure</Text>
+        <Text style={styles.appName}>TOTSU</Text>
+        <Text style={styles.tagline}>Parents made for families</Text>
       </View>
     </ScrollView>
   );
