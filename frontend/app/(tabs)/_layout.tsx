@@ -46,9 +46,9 @@ export default function TabsLayout() {
           backgroundColor: Colors.backgroundCard,
           borderTopWidth: 1,
           borderTopColor: Colors.border,
-          height: 60,
-          paddingBottom: 8,
-          paddingTop: 8,
+          height: Platform.OS === 'ios' ? 85 : 65,
+          paddingBottom: Platform.OS === 'ios' ? 20 : 10,
+          paddingTop: 10,
         },
         headerStyle: {
           backgroundColor: Colors.primary,
