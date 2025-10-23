@@ -658,9 +658,9 @@ const styles = StyleSheet.create({
   },
   filtersSection: {
     marginBottom: Spacing.lg,
-    paddingHorizontal: Spacing.md,
   },
   filtersContent: {
+    paddingHorizontal: Spacing.md,
     gap: Spacing.sm,
   },
   filterChip: {
