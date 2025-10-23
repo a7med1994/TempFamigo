@@ -19,6 +19,7 @@ import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../consta
 import { CATEGORIES, QUICK_FILTERS } from '../../constants/Categories';
 import api from '../../utils/api';
 import NetflixCarousel, { NETFLIX_CARD_WIDTH } from '../../components/NetflixCarousel';
+import FilterModal, { FilterState } from '../../components/FilterModal';
 
 const { width } = Dimensions.get('window');
 const isWeb = Platform.OS === 'web';
