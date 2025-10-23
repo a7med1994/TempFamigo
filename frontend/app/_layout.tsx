@@ -89,15 +89,7 @@ export default function RootLayout() {
           <Stack.Screen 
             name="map-view" 
             options={{ 
-              headerShown: true, 
-              title: 'Near Me',
-              headerStyle: {
-                backgroundColor: Colors.primary,
-              },
-              headerTintColor: '#FFFFFF',
-              headerTitleStyle: {
-                fontWeight: '700',
-              },
+              headerShown: false,
             }} 
           />
         </Stack>
