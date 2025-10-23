@@ -22,6 +22,12 @@ interface Favorite {
   created_at: string;
 }
 
+interface UserLocation {
+  latitude: number;
+  longitude: number;
+  timestamp: number;
+}
+
 interface AppState {
   user: User | null;
   setUser: (user: User) => void;
@@ -31,6 +37,8 @@ interface AppState {
   addFavorite: (favorite: Favorite) => void;
   removeFavorite: (itemId: string) => void;
   isFavorite: (itemId: string) => boolean;
+  userLocation: UserLocation | null;
+  setUserLocation: (location: UserLocation) => void;
 }
 
 export const useStore = create<AppState>((set, get) => ({
