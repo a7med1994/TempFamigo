@@ -86,19 +86,33 @@ export default function BrowseCategoriesScreen() {
     return colors[index % colors.length];
   };
 
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <Ionicons name="arrow-back" size={24} color={Colors.backgroundCard} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Browse Categories</Text>
+          <View style={styles.placeholder} />
+        </View>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+          <Text style={styles.loadingText}>Loading categories...</Text>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+          <Ionicons name="arrow-back" size={24} color={Colors.backgroundCard} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Near Me</Text>
-        <View style={styles.headerRight}>
-          <TouchableOpacity onPress={getUserLocation} style={styles.locationButton}>
-            <Ionicons name="locate" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
-        </View>
+        <Text style={styles.headerTitle}>Browse Categories</Text>
+        <View style={styles.placeholder} />
       </View>
 
       {/* List View (Web-compatible) */}
