@@ -110,11 +110,75 @@ export default function BrowseCategoriesScreen() {
   };
 
   const handleCategoryPress = (categoryId: string) => {
-    // Navigate back to discover with selected category
-    router.push({
-      pathname: '/(tabs)',
-      params: { category: categoryId },
-    });
+    setSelectedCategory(categoryId);
+    
+    // Filter venues and events based on category
+    let filteredVenues: any[] = [];
+    let filteredEvents: any[] = [];
+    
+    switch(categoryId) {
+      case 'playgrounds':
+        filteredVenues = venues.filter(v => 
+          v.category && (v.category.toLowerCase().includes('playground') || v.category.toLowerCase() === 'play')
+        );
+        break;
+      case 'softplay':
+        filteredVenues = venues.filter(v => 
+          v.category && (v.category.toLowerCase().includes('indoor') || v.category.toLowerCase().includes('soft'))
+        );
+        break;
+      case 'animals':
+        filteredVenues = venues.filter(v => 
+          v.category && (v.category.toLowerCase().includes('farm') || v.category.toLowerCase().includes('animal') || v.category.toLowerCase().includes('nature'))
+        );
+        break;
+      case 'arts':
+        filteredVenues = venues.filter(v => 
+          v.category && (v.category.toLowerCase().includes('art') || v.category.toLowerCase().includes('craft') || v.category.toLowerCase().includes('creative'))
+        );
+        break;
+      case 'events':
+        filteredEvents = events;
+        break;
+      case 'birthday':
+        filteredVenues = venues.filter(v => v.description && v.description.toLowerCase().includes('birthday'));
+        filteredEvents = events.filter(e => e.event_type && e.event_type.toLowerCase().includes('birthday'));
+        break;
+      case 'sports':
+        filteredVenues = venues.filter(v => v.category && v.category.toLowerCase().includes('sport'));
+        break;
+      case 'creative':
+        filteredVenues = venues.filter(v => 
+          v.category && (v.category.toLowerCase().includes('learning') || v.category.toLowerCase().includes('education'))
+        );
+        break;
+      case 'community':
+        filteredVenues = venues.filter(v => 
+          v.category && (v.category.toLowerCase().includes('community') || v.category.toLowerCase() === 'free')
+        );
+        break;
+      case 'childcare':
+        filteredVenues = venues.filter(v => 
+          v.category && (v.category.toLowerCase().includes('childcare') || v.category.toLowerCase().includes('daycare'))
+        );
+        break;
+      default:
+        filteredVenues = venues;
+        filteredEvents = events;
+    }
+    
+    // Combine and mark type
+    const combined = [
+      ...filteredVenues.map(v => ({ ...v, itemType: 'venue' })),
+      ...filteredEvents.map(e => ({ ...e, itemType: 'event' }))
+    ];
+    
+    setFilteredItems(combined);
+  };
+  
+  const handleBackFromList = () => {
+    setSelectedCategory(null);
+    setFilteredItems([]);
   };
 
   const getCategoryColor = (index: number) => {
