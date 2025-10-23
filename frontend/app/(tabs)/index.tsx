@@ -302,19 +302,10 @@ export default function DiscoverScreen() {
         {/* Nearby Activities Carousel */}
         <View style={styles.carouselSection}>
           <Text style={styles.carouselTitle}>Nearby Activities</Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.carouselContainer}
-            onScroll={Animated.event(
-              [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-              { useNativeDriver: false }
-            )}
-            scrollEventThrottle={16}
-          >
+          <NetflixCarousel autoScroll={true}>
             {venues.slice(0, 5).map((venue, index) => renderCarouselItem(venue, index, 'venue'))}
             {events.slice(0, 3).map((event, index) => renderCarouselItem(event, index, 'event'))}
-          </ScrollView>
+          </NetflixCarousel>
         </View>
 
         {/* Categories */}
