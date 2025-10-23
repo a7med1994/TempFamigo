@@ -245,7 +245,7 @@ export default function BrowseCategoriesScreen() {
       ) : (
         <>
           {/* Map View */}
-          {userLocation && Platform.OS !== 'web' ? (
+          {userLocation && Platform.OS !== 'web' && MapView ? (
             <MapView
               style={styles.map}
               provider={PROVIDER_GOOGLE}
