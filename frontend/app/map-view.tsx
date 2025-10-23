@@ -465,4 +465,57 @@ const styles = StyleSheet.create({
     color: Colors.textDark,
     letterSpacing: 0.5,
   },
+  listContainer: {
+    flex: 1,
+  },
+  listContent: {
+    padding: Spacing.md,
+  },
+  listItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.backgroundCard,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.md,
+    ...Shadows.small,
+  },
+  listItemIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: Colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Spacing.md,
+  },
+  listItemContent: {
+    flex: 1,
+  },
+  listItemTitle: {
+    ...Typography.body,
+    fontWeight: '700',
+    marginBottom: Spacing.xs,
+  },
+  listItemSubtitle: {
+    ...Typography.caption,
+    color: Colors.primary,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  listItemAddress: {
+    ...Typography.caption,
+    color: Colors.textLight,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 80,
+  },
+  emptyText: {
+    ...Typography.body,
+    color: Colors.textLight,
+    marginTop: Spacing.md,
+  },
 });
