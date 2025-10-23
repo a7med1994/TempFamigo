@@ -54,9 +54,16 @@ export default function DiscoverScreen() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(false);
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<FilterState>({
+    categories: [],
+    ageRanges: [],
+    priceTypes: [],
+  });
+
   useEffect(() => {
     fetchData();
-  }, [selectedCategory]);
+  }, [selectedCategory, activeFilters]);
 
   const fetchData = async () => {
     try {
