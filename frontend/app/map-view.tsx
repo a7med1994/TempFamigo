@@ -352,8 +352,17 @@ const styles = StyleSheet.create({
     ...Typography.h3,
     color: Colors.backgroundCard,
   },
-  placeholder: {
-    width: 40,
+  headerRight: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
+  viewToggle: {
+    padding: Spacing.sm,
+    borderRadius: BorderRadius.sm,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+  },
+  viewToggleActive: {
+    backgroundColor: Colors.backgroundCard,
   },
   loadingContainer: {
     flex: 1,
