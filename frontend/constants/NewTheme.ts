@@ -1,20 +1,21 @@
-// New Color Palette Theme
+// Rearranged Color Palette - Better Visual Hierarchy
 
 export const Colors = {
-  primary: '#2E7D6F',           // Deep Teal - headers, main buttons
-  secondary: '#E97C6F',         // Coral - accents, CTAs
+  primary: '#E97C6F',           // Coral - Main accent (was secondary)
+  secondary: '#2E7D6F',         // Deep Teal - Secondary actions
   accent1: '#CBA53A',           // Mustard Yellow - highlights, stars
   accent2: '#E2A8A6',           // Dusty Rose - favorites, love
-  background: '#EDE9E3',        // Off-White - main background
-  backgroundCard: '#FFFFFF',    // Pure white for cards
-  textDark: '#2E7D6F',          // Deep Teal
+  textDark: '#2E7D6F',          // Deep Teal for headings
   textMedium: '#6B7280',        // Medium gray
   textLight: '#A6B9C2',         // Muted Blue-Gray
+  background: '#EDE9E3',        // Off-White - main background
+  backgroundCard: '#FFFFFF',    // Pure white for cards
   supporting: '#B6A3D1',        // Lavender - tags, chips
   border: '#D1D5DB',            // Light border
   error: '#E97C6F',             // Coral for errors
   success: '#2E7D6F',           // Teal for success
   overlay: 'rgba(46, 125, 111, 0.5)',
+  reactionBg: 'rgba(255, 255, 255, 0.95)',
 };
 
 export const Typography = {
@@ -110,10 +111,10 @@ export const Shadows = {
 
 // Reaction types for Facebook-style reactions
 export const REACTIONS = [
-  { id: 'like', emoji: '👍', label: 'Like' },
-  { id: 'love', emoji: '❤️', label: 'Love' },
-  { id: 'haha', emoji: '😂', label: 'Haha' },
-  { id: 'wow', emoji: '😮', label: 'Wow' },
-  { id: 'sad', emoji: '😢', label: 'Sad' },
-  { id: 'angry', emoji: '😠', label: 'Angry' },
+  { id: 'like', emoji: '👍', label: 'Like', color: '#2E7D6F' },
+  { id: 'love', emoji: '❤️', label: 'Love', color: '#E2A8A6' },
+  { id: 'haha', emoji: '😂', label: 'Haha', color: '#CBA53A' },
+  { id: 'wow', emoji: '😮', label: 'Wow', color: '#E97C6F' },
+  { id: 'sad', emoji: '😢', label: 'Sad', color: '#A6B9C2' },
+  { id: 'angry', emoji: '😠', label: 'Angry', color: '#E97C6F' },
 ];
