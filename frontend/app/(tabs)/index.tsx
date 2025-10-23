@@ -672,12 +672,12 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: Spacing.lg,
+    paddingHorizontal: Spacing.md,
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: Spacing.md,
     marginBottom: Spacing.md,
   },
   sectionTitle: {
@@ -689,7 +689,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   cardsContainer: {
-    paddingHorizontal: Spacing.md,
     gap: Spacing.md,
   },
   card: {
