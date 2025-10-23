@@ -10,19 +10,20 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useStore } from '../store/useStore';
-import { Colors, Typography, Spacing, BorderRadius } from '../constants/AirbnbTheme';
+import { Colors, Typography, Spacing, BorderRadius } from '../constants/NewTheme';
 
 interface CustomDrawerProps {
   onClose: () => void;
 }
 
 export default function CustomDrawer({ onClose }: CustomDrawerProps) {
-  const { user } = useStore();
+  const { user, favorites } = useStore();
 
   const menuItems = [
     { id: 'discover', label: 'Discover', icon: 'search', route: '/(tabs)' },
     { id: 'events', label: 'Events', icon: 'calendar-outline', route: '/(tabs)/events' },
     { id: 'community', label: 'Community', icon: 'people-outline', route: '/(tabs)/community' },
+    { id: 'favorites', label: 'Favorite Spots', icon: 'heart', route: '/favorites', badge: favorites.length },
     { id: 'profile', label: 'Profile', icon: 'person-outline', route: '/(tabs)/profile' },
   ];
 
@@ -50,7 +51,7 @@ export default function CustomDrawer({ onClose }: CustomDrawerProps) {
         <Text style={styles.userName}>{user?.name || 'Guest'}</Text>
         {user?.location?.city && (
           <View style={styles.locationRow}>
-            <Ionicons name="location" size={14} color={Colors.medium} />
+            <Ionicons name="location" size={14} color={Colors.textLight} />
             <Text style={styles.userLocation}>{user.location.city}</Text>
           </View>
         )}
@@ -64,8 +65,13 @@ export default function CustomDrawer({ onClose }: CustomDrawerProps) {
             style={styles.menuItem}
             onPress={() => handleNavigate(item.route)}
           >
-            <Ionicons name={item.icon as any} size={24} color={Colors.dark} />
+            <Ionicons name={item.icon as any} size={24} color={Colors.textDark} />
             <Text style={styles.menuLabel}>{item.label}</Text>
+            {item.badge !== undefined && item.badge > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{item.badge}</Text>
+              </View>
+            )}
           </TouchableOpacity>
         ))}
       </View>
@@ -92,7 +98,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: Spacing.xl,
     borderBottomWidth: 1,
-    borderBottomColor: Colors.light,
+    borderBottomColor: Colors.border,
   },
   avatarContainer: {
     marginBottom: Spacing.md,
@@ -106,7 +112,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: Colors.backgroundGray,
+    backgroundColor: Colors.backgroundCard,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -134,14 +140,30 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.md,
     marginBottom: Spacing.sm,
     gap: Spacing.md,
+    position: 'relative',
   },
   menuLabel: {
     ...Typography.body,
+    flex: 1,
+  },
+  badge: {
+    backgroundColor: Colors.secondary,
+    borderRadius: BorderRadius.round,
+    minWidth: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.sm,
+  },
+  badgeText: {
+    ...Typography.caption,
+    color: Colors.background,
+    fontWeight: '700',
   },
   footer: {
     paddingTop: Spacing.lg,
     borderTopWidth: 1,
-    borderTopColor: Colors.light,
+    borderTopColor: Colors.border,
     alignItems: 'center',
   },
   appName: {
