@@ -13,7 +13,7 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useStore } from '../../store/useStore';
-import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/AirbnbTheme';
+import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/NewTheme';
 
 export default function ProfileScreen() {
   const { user, setUser, favorites } = useStore();
