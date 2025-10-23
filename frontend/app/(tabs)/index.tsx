@@ -334,6 +334,7 @@ export default function DiscoverScreen() {
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.categoriesContent}
+            style={styles.horizontalScroll}
           >
             {CATEGORIES.map((cat) => (
               <TouchableOpacity
