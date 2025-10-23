@@ -5,41 +5,28 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
   ScrollView,
-  Platform,
+  Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import * as Location from 'expo-location';
-import { useStore } from '../store/useStore';
+import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../constants/TotsuTheme';
+import { CATEGORIES } from '../constants/Categories';
 import api from '../utils/api';
 
-interface Venue {
-  id: string;
-  name: string;
+const { width } = Dimensions.get('window');
+const CARD_WIDTH = (width - 48) / 2; // 2 columns with 16px padding and 16px gap
+
+interface CategoryCount {
   category: string;
-  location: any;
-  rating: number;
-  pricing: any;
+  count: number;
 }
 
-interface Event {
-  id: string;
-  title: string;
-  location: any;
-  date: string;
-  host_name: string;
-}
-
-export default function MapViewScreen() {
-  const { user } = useStore();
-  const [userLocation, setUserLocation] = useState<any>(null);
-  const [venues, setVenues] = useState<Venue[]>([]);
-  const [events, setEvents] = useState<Event[]>([]);
+export default function BrowseCategoriesScreen() {
+  const [venues, setVenues] = useState<any[]>([]);
+  const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showVenues, setShowVenues] = useState(true);
-  const [showEvents, setShowEvents] = useState(true);
+  const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
     getUserLocation();
