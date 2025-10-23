@@ -9,12 +9,14 @@ import {
   Alert,
   Image,
 } from 'react-native';
+import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useStore } from '../../store/useStore';
+import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/AirbnbTheme';
 
 export default function ProfileScreen() {
-  const { user, setUser } = useStore();
+  const { user, setUser, favorites } = useStore();
   const [isEditing, setIsEditing] = useState(!user);
   const [name, setName] = useState(user?.name || '');
   const [city, setCity] = useState(user?.location?.city || '');
@@ -23,7 +25,6 @@ export default function ProfileScreen() {
 
   const handlePickImage = async () => {
     try {
-      // Request permission
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       
       if (status !== 'granted') {
@@ -34,7 +35,6 @@ export default function ProfileScreen() {
         return;
       }
 
-      // Launch image picker
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
         allowsEditing: true,
@@ -46,7 +46,6 @@ export default function ProfileScreen() {
         const imageUri = result.assets[0].uri;
         setAvatar(imageUri);
         
-        // Update user avatar immediately
         if (user) {
           const updatedUser = { ...user, avatar: imageUri };
           setUser(updatedUser);
@@ -74,7 +73,7 @@ export default function ProfileScreen() {
       kidsAges: agesArray,
       location: {
         city,
-        coordinates: { lat: -37.8136, lng: 144.9631 }, // Default Melbourne
+        coordinates: { lat: -37.8136, lng: 144.9631 },
       },
       avatar: avatar || user?.avatar,
     };
@@ -94,11 +93,11 @@ export default function ProfileScreen() {
               <Image source={{ uri: avatar || user?.avatar }} style={styles.avatar} />
             ) : (
               <View style={styles.avatarPlaceholder}>
-                <Ionicons name="person" size={48} color="#6D9773" />
+                <Ionicons name=\"person\" size={48} color={Colors.primary} />
               </View>
             )}
             <View style={styles.editAvatarBadge}>
-              <Ionicons name="camera" size={16} color="#FFFFFF" />
+              <Ionicons name=\"camera\" size={16} color=\"#FFFFFF\" />
             </View>
           </TouchableOpacity>
           <Text style={styles.uploadHint}>Tap to upload photo</Text>
@@ -119,7 +118,7 @@ export default function ProfileScreen() {
               <Text style={styles.label}>Your Name *</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Enter your name"
+                placeholder=\"Enter your name\"
                 value={name}
                 onChangeText={setName}
               />
@@ -129,7 +128,7 @@ export default function ProfileScreen() {
               <Text style={styles.label}>City *</Text>
               <TextInput
                 style={styles.input}
-                placeholder="e.g., Melbourne"
+                placeholder=\"e.g., Melbourne\"
                 value={city}
                 onChangeText={setCity}
               />
@@ -139,10 +138,10 @@ export default function ProfileScreen() {
               <Text style={styles.label}>Kids' Ages (comma separated)</Text>
               <TextInput
                 style={styles.input}
-                placeholder="e.g., 3, 7, 10"
+                placeholder=\"e.g., 3, 7, 10\"
                 value={kidsAges}
                 onChangeText={setKidsAges}
-                keyboardType="numbers-and-punctuation"
+                keyboardType=\"numbers-and-punctuation\"
               />
             </View>
 
@@ -156,10 +155,28 @@ export default function ProfileScreen() {
               style={styles.editButton}
               onPress={() => setIsEditing(true)}
             >
-              <Ionicons name="pencil" size={18} color="#6D9773" />
+              <Ionicons name=\"pencil\" size={18} color={Colors.primary} />
               <Text style={styles.editButtonText}>Edit Profile</Text>
             </TouchableOpacity>
 
+            {/* Favorites Section */}
+            <TouchableOpacity
+              style={styles.favoritesCard}
+              onPress={() => router.push('/favorites')}
+            >
+              <View style={styles.favoritesHeader}>
+                <Ionicons name=\"heart\" size={24} color={Colors.primary} />
+                <Text style={styles.favoritesTitle}>Favorite Spots</Text>
+              </View>
+              <Text style={styles.favoritesCount}>
+                {favorites.length} {favorites.length === 1 ? 'place' : 'places'} saved
+              </Text>
+              <View style={styles.favoritesArrow}>
+                <Ionicons name=\"chevron-forward\" size={20} color={Colors.medium} />
+              </View>
+            </TouchableOpacity>
+
+            {/* Kids Ages */}
             <View style={styles.infoSection}>
               <Text style={styles.sectionTitle}>Kids' Ages</Text>
               <View style={styles.ageChips}>
@@ -174,21 +191,22 @@ export default function ProfileScreen() {
               </View>
             </View>
 
+            {/* Quick Stats */}
             <View style={styles.infoSection}>
               <Text style={styles.sectionTitle}>Quick Stats</Text>
               <View style={styles.statsGrid}>
                 <View style={styles.statCard}>
-                  <Ionicons name="calendar" size={24} color="#6D9773" />
+                  <Ionicons name=\"calendar\" size={24} color={Colors.primary} />
                   <Text style={styles.statNumber}>0</Text>
                   <Text style={styles.statLabel}>Events Hosted</Text>
                 </View>
                 <View style={styles.statCard}>
-                  <Ionicons name="ticket" size={24} color="#6D9773" />
+                  <Ionicons name=\"ticket\" size={24} color={Colors.primary} />
                   <Text style={styles.statNumber}>0</Text>
                   <Text style={styles.statLabel}>Bookings</Text>
                 </View>
                 <View style={styles.statCard}>
-                  <Ionicons name="star" size={24} color="#6D9773" />
+                  <Ionicons name=\"star\" size={24} color={Colors.primary} />
                   <Text style={styles.statNumber}>0</Text>
                   <Text style={styles.statLabel}>Reviews</Text>
                 </View>
@@ -204,17 +222,17 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.backgroundGray,
   },
   content: {
-    padding: 16,
+    padding: Spacing.md,
   },
   header: {
     alignItems: 'center',
-    paddingVertical: 24,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    marginBottom: 16,
+    paddingVertical: Spacing.lg,
+    backgroundColor: Colors.background,
+    borderRadius: BorderRadius.lg,
+    marginBottom: Spacing.md,
   },
   avatarContainer: {
     position: 'relative',
@@ -228,7 +246,7 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: 48,
-    backgroundColor: '#EEF2FF',
+    backgroundColor: Colors.backgroundGray,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -239,134 +257,152 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#6D9773',
+    backgroundColor: Colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: '#FFFFFF',
+    borderColor: Colors.background,
   },
   uploadHint: {
-    fontSize: 12,
-    color: '#9CA3AF',
-    marginTop: 8,
+    ...Typography.caption,
+    marginTop: Spacing.sm,
   },
   headerInfo: {
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: Spacing.md,
   },
   userName: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#0C3B2E',
+    ...Typography.h2,
   },
   userLocation: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginTop: 4,
+    ...Typography.bodySmall,
+    marginTop: Spacing.xs,
   },
   form: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: Colors.background,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#0C3B2E',
-    marginBottom: 16,
+    ...Typography.h4,
+    marginBottom: Spacing.md,
   },
   inputGroup: {
-    marginBottom: 16,
+    marginBottom: Spacing.md,
   },
   label: {
-    fontSize: 14,
+    ...Typography.bodySmall,
     fontWeight: '600',
-    color: '#374151',
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
   },
   input: {
-    backgroundColor: '#F3F4F6',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    backgroundColor: Colors.backgroundGray,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
     fontSize: 16,
-    color: '#0C3B2E',
+    color: Colors.dark,
+    borderWidth: 1,
+    borderColor: Colors.light,
   },
   saveButton: {
-    backgroundColor: '#6D9773',
-    borderRadius: 12,
-    paddingVertical: 16,
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.md,
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: Spacing.sm,
   },
   saveButtonText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    ...Typography.button,
   },
   profileInfo: {
-    gap: 16,
+    gap: Spacing.md,
   },
   editButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    paddingVertical: 12,
-    gap: 8,
+    backgroundColor: Colors.background,
+    borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.md,
+    gap: Spacing.sm,
+    borderWidth: 1,
+    borderColor: Colors.primary,
   },
   editButtonText: {
-    fontSize: 16,
+    ...Typography.body,
+    color: Colors.primary,
     fontWeight: '600',
-    color: '#6D9773',
+  },
+  favoritesCard: {
+    backgroundColor: Colors.background,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    ...Shadows.small,
+    position: 'relative',
+  },
+  favoritesHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
+  favoritesTitle: {
+    ...Typography.h4,
+  },
+  favoritesCount: {
+    ...Typography.bodySmall,
+  },
+  favoritesArrow: {
+    position: 'absolute',
+    right: Spacing.md,
+    top: '50%',
+    marginTop: -10,
   },
   infoSection: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: Colors.background,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
   },
   ageChips: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
+    gap: Spacing.sm,
   },
   ageChip: {
-    backgroundColor: '#EEF2FF',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
+    backgroundColor: Colors.backgroundGray,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.round,
+    borderWidth: 1,
+    borderColor: Colors.primary,
   },
   ageChipText: {
-    fontSize: 14,
+    ...Typography.bodySmall,
+    color: Colors.primary,
     fontWeight: '600',
-    color: '#6D9773',
   },
   noData: {
-    fontSize: 14,
-    color: '#9CA3AF',
+    ...Typography.bodySmall,
   },
   statsGrid: {
     flexDirection: 'row',
-    gap: 12,
+    gap: Spacing.sm,
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
-    borderRadius: 12,
-    padding: 16,
+    backgroundColor: Colors.backgroundGray,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
     alignItems: 'center',
   },
   statNumber: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#0C3B2E',
-    marginTop: 8,
+    ...Typography.h2,
+    marginTop: Spacing.sm,
   },
   statLabel: {
-    fontSize: 12,
-    color: '#6B7280',
-    marginTop: 4,
+    ...Typography.caption,
+    marginTop: Spacing.xs,
     textAlign: 'center',
   },
 });
