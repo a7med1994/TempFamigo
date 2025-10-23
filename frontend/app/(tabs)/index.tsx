@@ -721,7 +721,7 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
   },
   card: {
-    width: isWeb ? 280 : width * 0.75,
+    width: isWeb ? 260 : width * 0.65,
     backgroundColor: Colors.backgroundCard,
     borderRadius: BorderRadius.lg,
     overflow: 'hidden',
