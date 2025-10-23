@@ -10,7 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useStore } from '../store/useStore';
-import { Colors, Typography, Spacing, BorderRadius } from '../constants/NewTheme';
+import { Colors, Typography, Spacing, BorderRadius } from '../constants/DarkAirbnbTheme';
 
 interface CustomDrawerProps {
   onClose: () => void;
@@ -24,6 +24,7 @@ export default function CustomDrawer({ onClose }: CustomDrawerProps) {
     { id: 'events', label: 'Events', icon: 'calendar-outline', route: '/(tabs)/events' },
     { id: 'community', label: 'Community', icon: 'people-outline', route: '/(tabs)/community' },
     { id: 'favorites', label: 'Favorite Spots', icon: 'heart', route: '/favorites', badge: favorites.length },
+    { id: 'bookings', label: 'My Bookings', icon: 'receipt-outline', route: '/bookings' },
     { id: 'profile', label: 'Profile', icon: 'person-outline', route: '/(tabs)/profile' },
   ];
 
@@ -147,7 +148,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   badge: {
-    backgroundColor: Colors.secondary,
+    backgroundColor: Colors.primary,
     borderRadius: BorderRadius.round,
     minWidth: 24,
     height: 24,
@@ -157,7 +158,7 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     ...Typography.caption,
-    color: Colors.background,
+    color: Colors.backgroundCard,
     fontWeight: '700',
   },
   footer: {
