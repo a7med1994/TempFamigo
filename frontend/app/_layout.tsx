@@ -3,12 +3,26 @@ import { Stack } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { loadUser } from '../store/useStore';
 import { DrawerProvider } from '../contexts/DrawerContext';
-import { Colors } from '../constants/AirbnbTheme';
+import { Colors } from '../constants/DarkAirbnbTheme';
+import LoadingScreen from '../components/LoadingScreen';
 
 export default function RootLayout() {
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
-    loadUser();
+    const initialize = async () => {
+      await loadUser();
+      // Simulate loading time
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 2000);
+    };
+    initialize();
   }, []);
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -26,6 +40,13 @@ export default function RootLayout() {
           />
           <Stack.Screen 
             name="favorites" 
+            options={{ 
+              headerShown: false,
+              presentation: 'card',
+            }} 
+          />
+          <Stack.Screen 
+            name="bookings" 
             options={{ 
               headerShown: false,
               presentation: 'card',
