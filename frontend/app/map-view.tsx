@@ -66,14 +66,6 @@ export default function BrowseCategoriesScreen() {
     }
   };
 
-  const isNewItem = (item: any) => {
-    if (!item.created_at) return false;
-    const created = new Date(item.created_at);
-    const now = new Date();
-    const daysDiff = (now.getTime() - created.getTime()) / (1000 * 60 * 60 * 24);
-    return daysDiff <= 7; // New if created within last 7 days
-  };
-
   const handleCategoryPress = (categoryId: string) => {
     // Navigate back to discover with selected category
     router.push({
