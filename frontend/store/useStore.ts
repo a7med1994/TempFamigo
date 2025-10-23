@@ -14,10 +14,23 @@ interface User {
   };
 }
 
+interface Favorite {
+  id: string;
+  item_id: string;
+  item_type: string;
+  item_data: any;
+  created_at: string;
+}
+
 interface AppState {
   user: User | null;
   setUser: (user: User) => void;
   clearUser: () => void;
+  favorites: Favorite[];
+  setFavorites: (favorites: Favorite[]) => void;
+  addFavorite: (favorite: Favorite) => void;
+  removeFavorite: (itemId: string) => void;
+  isFavorite: (itemId: string) => boolean;
 }
 
 export const useStore = create<AppState>((set) => ({
