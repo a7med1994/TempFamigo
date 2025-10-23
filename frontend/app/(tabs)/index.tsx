@@ -52,8 +52,6 @@ export default function DiscoverScreen() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(false);
-  const scrollX = useRef(new Animated.Value(0)).current;
-
   useEffect(() => {
     fetchData();
   }, [selectedCategory]);
