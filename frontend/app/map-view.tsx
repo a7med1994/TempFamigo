@@ -30,8 +30,6 @@ export default function BrowseCategoriesScreen() {
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
-  const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
-  const [userLocation, setUserLocation] = useState<any>(null);
 
   useEffect(() => {
     fetchData();
