@@ -9,12 +9,14 @@ import {
   Alert,
   Image,
 } from 'react-native';
+import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import { useStore } from '../../store/useStore';
+import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/AirbnbTheme';
 
 export default function ProfileScreen() {
-  const { user, setUser } = useStore();
+  const { user, setUser, favorites } = useStore();
   const [isEditing, setIsEditing] = useState(!user);
   const [name, setName] = useState(user?.name || '');
   const [city, setCity] = useState(user?.location?.city || '');
