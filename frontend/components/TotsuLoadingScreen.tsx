@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Animated,
   Easing,
+  Platform,
 } from 'react-native';
 import { Colors, Typography, Spacing } from '../constants/TotsuTheme';
 
@@ -64,7 +65,7 @@ export default function TotsuLoadingScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.content}>
-        {/* TOTSU Logo Text */}
+        {/* TOTSU Logo Text with messy/handwritten style */}
         <Text style={styles.logo}>TOTSU</Text>
         <Text style={styles.slogan}>Parents made for families</Text>
 
@@ -125,13 +126,38 @@ const styles = StyleSheet.create({
     color: Colors.secondary,
     letterSpacing: 4,
     marginBottom: Spacing.md,
+    ...Platform.select({
+      ios: {
+        fontFamily: 'Chalkduster',
+      },
+      android: {
+        fontFamily: 'casual',
+      },
+      web: {
+        fontFamily: 'Comic Sans MS, Chalkduster, cursive',
+      },
+    }),
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 4,
   },
   slogan: {
     fontSize: 16,
     color: Colors.secondary,
     letterSpacing: 2,
     marginBottom: Spacing.xxl,
-    textTransform: 'uppercase',
+    textTransform: 'lowercase',
+    ...Platform.select({
+      ios: {
+        fontFamily: 'Chalkduster',
+      },
+      android: {
+        fontFamily: 'casual',
+      },
+      web: {
+        fontFamily: 'Comic Sans MS, Chalkduster, cursive',
+      },
+    }),
   },
   dotsContainer: {
     flexDirection: 'row',

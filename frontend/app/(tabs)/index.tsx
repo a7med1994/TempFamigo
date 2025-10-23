@@ -20,6 +20,7 @@ import { CATEGORIES, QUICK_FILTERS } from '../../constants/Categories';
 import api from '../../utils/api';
 import NetflixCarousel, { NETFLIX_CARD_WIDTH } from '../../components/NetflixCarousel';
 import FilterModal, { FilterState } from '../../components/FilterModal';
+import AnimatedSearchPrompt from '../../components/AnimatedSearchPrompt';
 
 const { width } = Dimensions.get('window');
 const isWeb = Platform.OS === 'web';
@@ -150,7 +151,7 @@ export default function DiscoverScreen() {
           <Ionicons
             name={favorited ? 'heart' : 'heart-outline'}
             size={20}
-            color={favorited ? Colors.accent2 : Colors.backgroundCard}
+            color={favorited ? Colors.primary : Colors.backgroundCard}
           />
         </TouchableOpacity>
 
@@ -196,7 +197,7 @@ export default function DiscoverScreen() {
           <Ionicons
             name={favorited ? 'heart' : 'heart-outline'}
             size={24}
-            color={favorited ? Colors.accent2 : Colors.backgroundCard}
+            color={favorited ? Colors.primary : Colors.backgroundCard}
           />
         </TouchableOpacity>
 
@@ -206,7 +207,7 @@ export default function DiscoverScreen() {
               {venue.name}
             </Text>
             <View style={styles.ratingRow}>
-              <Ionicons name="star" size={14} color={Colors.accent1} />
+              <Ionicons name="star" size={14} color={Colors.secondary} />
               <Text style={styles.ratingText}>{venue.rating.toFixed(1)}</Text>
             </View>
           </View>
@@ -254,7 +255,7 @@ export default function DiscoverScreen() {
           <Ionicons
             name={favorited ? 'heart' : 'heart-outline'}
             size={24}
-            color={favorited ? Colors.accent2 : Colors.backgroundCard}
+            color={favorited ? Colors.primary : Colors.backgroundCard}
           />
         </TouchableOpacity>
 
@@ -287,6 +288,11 @@ export default function DiscoverScreen() {
     );
   };
 
+  const filterCount =
+    activeFilters.categories.length +
+    activeFilters.ageRanges.length +
+    activeFilters.priceTypes.length;
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -294,17 +300,32 @@ export default function DiscoverScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Search Bar */}
+        {/* Search Bar with Filter Icon */}
         <View style={styles.searchContainer}>
-          <TouchableOpacity 
-            style={styles.searchBar}
-            onPress={() => setSearchExpanded(true)}
-          >
-            <Ionicons name="search" size={20} color={Colors.textLight} />
-            <Text style={styles.searchPlaceholder}>
-              Discover fun activities for your kids nearby
-            </Text>
-          </TouchableOpacity>
+          <View style={styles.searchBarRow}>
+            <TouchableOpacity 
+              style={styles.searchBar}
+              onPress={() => setSearchExpanded(true)}
+            >
+              <Ionicons name="search" size={20} color={Colors.textLight} />
+              <Text style={styles.searchPlaceholder}>Search</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={styles.filterIconButton}
+              onPress={() => setShowFilterModal(true)}
+            >
+              <Ionicons name="options-outline" size={24} color={Colors.primary} />
+              {filterCount > 0 && (
+                <View style={styles.filterBadgeSmall}>
+                  <Text style={styles.filterBadgeTextSmall}>{filterCount}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
+          
+          {/* Animated Search Prompt */}
+          <AnimatedSearchPrompt />
         </View>
 
         {/* Categories - Moved under search */}
@@ -352,29 +373,12 @@ export default function DiscoverScreen() {
           </NetflixCarousel>
         </View>
 
-        {/* Hero Section */}
+        {/* Hero Section - NO FILTER BUTTON HERE */}
         <View style={styles.heroSection}>
-          <View style={styles.heroHeader}>
-            <View style={styles.heroTextContainer}>
-              <Text style={styles.heroTitle}>Discover Amazing Places</Text>
-              <Text style={styles.heroSubtitle}>
-                Find the perfect activities for your family
-              </Text>
-            </View>
-            <TouchableOpacity
-              style={styles.filterButton}
-              onPress={() => setShowFilterModal(true)}
-            >
-              <Ionicons name="options-outline" size={24} color={Colors.textDark} />
-              {(activeFilters.categories.length + activeFilters.ageRanges.length + activeFilters.priceTypes.length) > 0 && (
-                <View style={styles.filterBadge}>
-                  <Text style={styles.filterBadgeText}>
-                    {activeFilters.categories.length + activeFilters.ageRanges.length + activeFilters.priceTypes.length}
-                  </Text>
-                </View>
-              )}
-            </TouchableOpacity>
-          </View>
+          <Text style={styles.heroTitle}>Discover Amazing Places</Text>
+          <Text style={styles.heroSubtitle}>
+            Find the perfect activities for your family
+          </Text>
         </View>
 
         {/* Quick Filters */}
@@ -498,7 +502,13 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
     backgroundColor: Colors.backgroundCard,
   },
+  searchBarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+  },
   searchBar: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.background,
@@ -514,6 +524,35 @@ const styles = StyleSheet.create({
     ...Typography.body,
     color: Colors.textLight,
   },
+  filterIconButton: {
+    width: 48,
+    height: 48,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
+    position: 'relative',
+  },
+  filterBadgeSmall: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: Colors.primary,
+    borderRadius: BorderRadius.round,
+    minWidth: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.xs,
+  },
+  filterBadgeTextSmall: {
+    ...Typography.caption,
+    color: Colors.backgroundCard,
+    fontWeight: '700',
+    fontSize: 10,
+  },
   carouselSection: {
     marginBottom: Spacing.md,
     backgroundColor: Colors.backgroundCard,
@@ -523,10 +562,6 @@ const styles = StyleSheet.create({
     ...Typography.h3,
     paddingHorizontal: Spacing.md,
     marginBottom: Spacing.md,
-  },
-  carouselContainer: {
-    paddingHorizontal: Spacing.md,
-    gap: Spacing.md,
   },
   carouselCard: {
     width: NETFLIX_CARD_WIDTH,
@@ -606,14 +641,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.lg,
   },
-  heroHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-  },
-  heroTextContainer: {
-    flex: 1,
-  },
   heroTitle: {
     ...Typography.h1,
     marginBottom: Spacing.xs,
@@ -621,35 +648,6 @@ const styles = StyleSheet.create({
   heroSubtitle: {
     ...Typography.body,
     color: Colors.textMedium,
-  },
-  filterButton: {
-    width: 48,
-    height: 48,
-    borderRadius: BorderRadius.md,
-    backgroundColor: Colors.backgroundCard,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: Colors.border,
-    position: 'relative',
-  },
-  filterBadge: {
-    position: 'absolute',
-    top: -4,
-    right: -4,
-    backgroundColor: Colors.primary,
-    borderRadius: BorderRadius.round,
-    minWidth: 20,
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: Spacing.xs,
-  },
-  filterBadgeText: {
-    ...Typography.caption,
-    color: Colors.backgroundCard,
-    fontWeight: '700',
-    fontSize: 10,
   },
   filtersSection: {
     marginBottom: Spacing.lg,
@@ -687,7 +685,7 @@ const styles = StyleSheet.create({
   },
   seeAllText: {
     ...Typography.body,
-    color: Colors.secondary,
+    color: Colors.primary,
     fontWeight: '600',
   },
   cardsContainer: {
