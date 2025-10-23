@@ -9,7 +9,7 @@ import json
 from datetime import datetime
 
 # Backend URL from frontend/.env
-BASE_URL = "https://famigo-connect.preview.emergentagent.com/api"
+BASE_URL = "https://totsu-family.preview.emergentagent.com/api"
 
 def test_event_detail_endpoints():
     """Test the specific event detail endpoints requested"""
