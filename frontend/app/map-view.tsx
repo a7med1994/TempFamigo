@@ -33,42 +33,7 @@ export default function BrowseCategoriesScreen() {
 
   useEffect(() => {
     fetchData();
-    getUserLocation();
   }, []);
-
-  const getUserLocation = async () => {
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission needed', 'Please enable location access to see nearby places');
-        // Use default location (Melbourne)
-        setUserLocation({
-          latitude: -37.8136,
-          longitude: 144.9631,
-          latitudeDelta: 0.1,
-          longitudeDelta: 0.1,
-        });
-        return;
-      }
-
-      const location = await Location.getCurrentPositionAsync({});
-      setUserLocation({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: 0.1,
-        longitudeDelta: 0.1,
-      });
-    } catch (error) {
-      console.error('Error getting location:', error);
-      // Use default location
-      setUserLocation({
-        latitude: -37.8136,
-        longitude: 144.9631,
-        latitudeDelta: 0.1,
-        longitudeDelta: 0.1,
-      });
-    }
-  };
 
   const fetchData = async () => {
     try {
