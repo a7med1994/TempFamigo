@@ -4,7 +4,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { loadUser } from '../store/useStore';
 import { DrawerProvider } from '../contexts/DrawerContext';
 import { Colors } from '../constants/TotsuTheme';
-import LoadingScreen from '../components/LoadingScreen';
+import TotsuLoadingScreen from '../components/TotsuLoadingScreen';
 
 export default function RootLayout() {
   const [isLoading, setIsLoading] = useState(true);
