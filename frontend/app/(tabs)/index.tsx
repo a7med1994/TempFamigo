@@ -388,6 +388,7 @@ export default function DiscoverScreen() {
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.filtersContent}
+            style={styles.horizontalScroll}
           >
             {QUICK_FILTERS.map((filter) => (
               <TouchableOpacity key={filter.id} style={styles.filterChip}>
