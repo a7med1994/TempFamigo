@@ -29,71 +29,61 @@ export default function BrowseCategoriesScreen() {
   const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    getUserLocation();
-    fetchMapData();
+    fetchData();
   }, []);
 
-  const getUserLocation = async () => {
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission denied', 'Please enable location access');
-        return;
-      }
-
-      const location = await Location.getCurrentPositionAsync({});
-      setUserLocation({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: 0.1,
-        longitudeDelta: 0.1,
-      });
-    } catch (error) {
-      console.error('Error getting location:', error);
-      // Use default location if can't get user location
-      setUserLocation({
-        latitude: user?.location?.coordinates?.lat || -37.8136,
-        longitude: user?.location?.coordinates?.lng || 144.9631,
-        latitudeDelta: 0.1,
-        longitudeDelta: 0.1,
-      });
-    }
-  };
-
-  const fetchMapData = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
+      const [venuesRes, eventsRes] = await Promise.all([
+        api.get('/venues'),
+        api.get('/events'),
+      ]);
       
-      // Fetch venues
-      const venuesResponse = await api.get('/venues');
-      const venuesData = venuesResponse.data.filter((v: Venue) => 
-        v.location?.coordinates?.lat && v.location?.coordinates?.lng
-      );
-      setVenues(venuesData);
-
-      // Fetch events
-      const eventsResponse = await api.get('/events', { params: { is_public: true } });
-      const eventsData = eventsResponse.data.filter((e: Event) => 
-        e.location?.coordinates?.lat && e.location?.coordinates?.lng
-      );
-      setEvents(eventsData);
+      setVenues(venuesRes.data);
+      setEvents(eventsRes.data);
+      
+      // Calculate category counts
+      const counts: Record<string, number> = {};
+      
+      // Count venues by category
+      venuesRes.data.forEach((venue: any) => {
+        const cat = venue.category.toLowerCase();
+        counts[cat] = (counts[cat] || 0) + 1;
+      });
+      
+      // Count events by event_type
+      eventsRes.data.forEach((event: any) => {
+        const cat = event.event_type.toLowerCase();
+        counts[cat] = (counts[cat] || 0) + 1;
+      });
+      
+      setCategoryCounts(counts);
     } catch (error) {
-      console.error('Error fetching map data:', error);
+      console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const getMarkerColor = (category: string) => {
-    const colors: any = {
-      'Indoor': '#6D9773',
-      'Outdoor': '#10B981',
-      'Playground': '#FFBA00',
-      'Farm': '#BB8A52',
-      'Learning': '#3B82F6',
-      'Free': '#8B5CF6',
-    };
-    return colors[category] || '#6D9773';
+  const handleCategoryPress = (categoryId: string) => {
+    // Navigate back to discover with selected category
+    router.push({
+      pathname: '/(tabs)',
+      params: { category: categoryId },
+    });
+  };
+
+  const getCategoryColor = (index: number) => {
+    const colors = [
+      Colors.primary,
+      Colors.accent1,
+      Colors.accent2,
+      '#9C27B0',
+      '#FF9800',
+      '#00BCD4',
+    ];
+    return colors[index % colors.length];
   };
 
   return (
