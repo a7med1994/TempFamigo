@@ -17,24 +17,6 @@ import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../constants
 import { CATEGORIES } from '../constants/Categories';
 import api from '../utils/api';
 
-// Conditionally import MapView only for native platforms
-let MapView: any = null;
-let Marker: any = null;
-let Callout: any = null;
-let PROVIDER_GOOGLE: any = null;
-
-if (Platform.OS !== 'web') {
-  try {
-    const maps = require('react-native-maps');
-    MapView = maps.default;
-    Marker = maps.Marker;
-    Callout = maps.Callout;
-    PROVIDER_GOOGLE = maps.PROVIDER_GOOGLE;
-  } catch (e) {
-    console.log('Maps not available');
-  }
-}
-
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 48) / 2; // 2 columns with 16px padding and 16px gap
 
