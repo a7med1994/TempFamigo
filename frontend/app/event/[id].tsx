@@ -8,12 +8,15 @@ import {
   ActivityIndicator,
   Image,
   Alert,
+  Platform,
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { format } from 'date-fns';
+import * as Calendar from 'expo-calendar';
 import api from '../../utils/api';
 import { useStore } from '../../store/useStore';
+import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/DarkAirbnbTheme';
 
 interface Event {
   id: string;
@@ -38,10 +41,12 @@ interface Event {
 
 export default function EventDetailScreen() {
   const { id } = useLocalSearchParams();
-  const { user } = useStore();
+  const { user, isFavorite, addFavorite, removeFavorite } = useStore();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [isRSVPed, setIsRSVPed] = useState(false);
+  const itemId = id as string;
+  const favorited = isFavorite(itemId);
 
   useEffect(() => {
     fetchEventDetails();
@@ -53,7 +58,6 @@ export default function EventDetailScreen() {
       const response = await api.get(`/events/${id}`);
       setEvent(response.data);
       
-      // Check if user already RSVPed
       if (user?.id) {
         const attendeesResponse = await api.get(`/events/${id}/attendees`);
         const isAttending = attendeesResponse.data.attendees?.some(
@@ -66,6 +70,87 @@ export default function EventDetailScreen() {
       Alert.alert('Error', 'Failed to load event details');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleToggleFavorite = async () => {
+    if (!user?.id) {
+      Alert.alert('Login Required', 'Please complete your profile first');
+      return;
+    }
+
+    try {
+      if (favorited) {
+        await api.post('/favorites/remove', {
+          user_id: user.id,
+          item_id: itemId,
+        });
+        removeFavorite(itemId);
+      } else {
+        const favorite = {
+          user_id: user.id,
+          item_id: itemId,
+          item_type: 'event',
+          item_data: {
+            title: event?.title,
+            location: event?.location,
+            image: event?.photos?.[0],
+          },
+        };
+        await api.post('/favorites/add', favorite);
+        addFavorite({
+          id: `${user.id}_${itemId}`,
+          item_id: itemId,
+          item_type: 'event',
+          item_data: favorite.item_data,
+          created_at: new Date().toISOString(),
+        });
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    }
+  };
+
+  const handleAddToCalendar = async () => {
+    if (!event) return;
+
+    try {
+      const { status } = await Calendar.requestCalendarPermissionsAsync();
+      
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permission Required',
+          'Please grant calendar permissions to add this event'
+        );
+        return;
+      }
+
+      const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+      const defaultCalendar = calendars.find(
+        (cal) => cal.allowsModifications
+      ) || calendars[0];
+
+      if (!defaultCalendar) {
+        Alert.alert('Error', 'No calendar available');
+        return;
+      }
+
+      const eventDate = new Date(event.date);
+      const endDate = new Date(eventDate.getTime() + 2 * 60 * 60 * 1000); // 2 hours later
+
+      await Calendar.createEventAsync(defaultCalendar.id, {
+        title: event.title,
+        startDate: eventDate,
+        endDate: endDate,
+        location: event.location.address || event.location.city,
+        notes: event.description,
+        timeZone: 'Australia/Melbourne',
+      });
+
+      Alert.alert('Success', 'Event added to your calendar!');
+    } catch (error) {
+      console.error('Error adding to calendar:', error);
+      Alert.alert('Error', 'Failed to add event to calendar');
     }
   };
 
@@ -88,7 +173,6 @@ export default function EventDetailScreen() {
         isRSVPed ? 'RSVP cancelled' : 'RSVP confirmed!'
       );
       
-      // Refresh event details
       fetchEventDetails();
     } catch (error) {
       console.error('Error with RSVP:', error);
@@ -99,7 +183,7 @@ export default function EventDetailScreen() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6D9773" />
+        <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
@@ -107,7 +191,7 @@ export default function EventDetailScreen() {
   if (!event) {
     return (
       <View style={styles.errorContainer}>
-        <Ionicons name="alert-circle" size={64} color="#9CA3AF" />
+        <Ionicons name="alert-circle" size={64} color={Colors.textLight} />
         <Text style={styles.errorText}>Event not found</Text>
         <TouchableOpacity
           style={styles.backButton}
@@ -121,6 +205,21 @@ export default function EventDetailScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Header with Back Button */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.headerBackButton}>
+          <Ionicons name="arrow-back" size={24} color={Colors.backgroundCard} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Event Details</Text>
+        <TouchableOpacity onPress={handleToggleFavorite} style={styles.headerFavoriteButton}>
+          <Ionicons
+            name={favorited ? 'heart' : 'heart-outline'}
+            size={24}
+            color={favorited ? Colors.primary : Colors.backgroundCard}
+          />
+        </TouchableOpacity>
+      </View>
+
       <ScrollView style={styles.scrollView}>
         {/* Event Photo */}
         {event.photos && event.photos.length > 0 ? (
@@ -131,13 +230,13 @@ export default function EventDetailScreen() {
           />
         ) : (
           <View style={[styles.eventPhoto, styles.noPhotoPlaceholder]}>
-            <Ionicons name="calendar" size={64} color="#9CA3AF" />
+            <Ionicons name="calendar" size={64} color={Colors.textLight} />
           </View>
         )}
 
         <View style={styles.content}>
           {/* Event Header */}
-          <View style={styles.header}>
+          <View style={styles.eventHeader}>
             <View style={styles.titleRow}>
               <Text style={styles.title}>{event.title}</Text>
               {event.is_public ? (
@@ -153,10 +252,24 @@ export default function EventDetailScreen() {
             <Text style={styles.eventType}>{event.event_type}</Text>
           </View>
 
+          {/* Quick Actions */}
+          <View style={styles.quickActions}>
+            <TouchableOpacity style={styles.actionCard} onPress={handleAddToCalendar}>
+              <Ionicons name="calendar-outline" size={24} color={Colors.primary} />
+              <Text style={styles.actionCardText}>Add to Calendar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionCard}>
+              <Ionicons name="share-outline" size={24} color={Colors.primary} />
+              <Text style={styles.actionCardText}>Share</Text>
+            </TouchableOpacity>
+          </View>
+
           {/* Host Info */}
-          <View style={styles.infoSection}>
+          <View style={styles.infoCard}>
             <View style={styles.infoRow}>
-              <Ionicons name="person-circle" size={24} color="#6D9773" />
+              <View style={styles.iconContainer}>
+                <Ionicons name="person-circle-outline" size={24} color={Colors.primary} />
+              </View>
               <View style={styles.infoText}>
                 <Text style={styles.infoLabel}>Hosted by</Text>
                 <Text style={styles.infoValue}>{event.host_name}</Text>
@@ -165,9 +278,11 @@ export default function EventDetailScreen() {
           </View>
 
           {/* Date & Time */}
-          <View style={styles.infoSection}>
+          <View style={styles.infoCard}>
             <View style={styles.infoRow}>
-              <Ionicons name="calendar" size={24} color="#6D9773" />
+              <View style={styles.iconContainer}>
+                <Ionicons name="calendar" size={24} color={Colors.primary} />
+              </View>
               <View style={styles.infoText}>
                 <Text style={styles.infoLabel}>Date & Time</Text>
                 <Text style={styles.infoValue}>
@@ -181,9 +296,11 @@ export default function EventDetailScreen() {
           </View>
 
           {/* Location */}
-          <View style={styles.infoSection}>
+          <View style={styles.infoCard}>
             <View style={styles.infoRow}>
-              <Ionicons name="location" size={24} color="#6D9773" />
+              <View style={styles.iconContainer}>
+                <Ionicons name="location" size={24} color={Colors.primary} />
+              </View>
               <View style={styles.infoText}>
                 <Text style={styles.infoLabel}>Location</Text>
                 <Text style={styles.infoValue}>
@@ -194,9 +311,11 @@ export default function EventDetailScreen() {
           </View>
 
           {/* Participants */}
-          <View style={styles.infoSection}>
+          <View style={styles.infoCard}>
             <View style={styles.infoRow}>
-              <Ionicons name="people" size={24} color="#6D9773" />
+              <View style={styles.iconContainer}>
+                <Ionicons name="people" size={24} color={Colors.primary} />
+              </View>
               <View style={styles.infoText}>
                 <Text style={styles.infoLabel}>Participants</Text>
                 <Text style={styles.infoValue}>
@@ -207,9 +326,11 @@ export default function EventDetailScreen() {
           </View>
 
           {/* Age Range */}
-          <View style={styles.infoSection}>
+          <View style={styles.infoCard}>
             <View style={styles.infoRow}>
-              <Ionicons name="happy" size={24} color="#6D9773" />
+              <View style={styles.iconContainer}>
+                <Ionicons name="happy-outline" size={24} color={Colors.primary} />
+              </View>
               <View style={styles.infoText}>
                 <Text style={styles.infoLabel}>Age Range</Text>
                 <Text style={styles.infoValue}>
@@ -220,14 +341,14 @@ export default function EventDetailScreen() {
           </View>
 
           {/* Description */}
-          <View style={styles.descriptionSection}>
+          <View style={styles.descriptionCard}>
             <Text style={styles.sectionTitle}>About This Event</Text>
             <Text style={styles.description}>{event.description}</Text>
           </View>
 
           {/* Attendees */}
           {event.attendees && event.attendees.length > 0 && (
-            <View style={styles.attendeesSection}>
+            <View style={styles.attendeesCard}>
               <Text style={styles.sectionTitle}>
                 Attendees ({event.attendees.length})
               </Text>
@@ -241,7 +362,7 @@ export default function EventDetailScreen() {
                       />
                     ) : (
                       <View style={styles.attendeeAvatarPlaceholder}>
-                        <Ionicons name="person" size={20} color="#6D9773" />
+                        <Ionicons name="person" size={20} color={Colors.primary} />
                       </View>
                     )}
                     <Text style={styles.attendeeName}>{attendee.name}</Text>
@@ -269,9 +390,9 @@ export default function EventDetailScreen() {
           }
         >
           <Ionicons
-            name={isRSVPed ? 'checkmark-circle' : 'add-circle'}
+            name={isRSVPed ? 'checkmark-circle' : 'add-circle-outline'}
             size={24}
-            color="#FFFFFF"
+            color={Colors.backgroundCard}
           />
           <Text style={styles.rsvpButtonText}>
             {isRSVPed
@@ -289,195 +410,236 @@ export default function EventDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.background,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
+    backgroundColor: Colors.background,
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
-    padding: 32,
+    backgroundColor: Colors.background,
+    padding: Spacing.xl,
   },
   errorText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#6B7280',
-    marginTop: 16,
-    marginBottom: 24,
+    ...Typography.h4,
+    color: Colors.textMedium,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.lg,
   },
   backButton: {
-    backgroundColor: '#6D9773',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 12,
+    backgroundColor: Colors.primary,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.md,
   },
   backButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
+    ...Typography.button,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    backgroundColor: Colors.primary,
+    ...Platform.select({
+      ios: {
+        paddingTop: 60,
+      },
+      android: {
+        paddingTop: Spacing.md,
+      },
+    }),
+  },
+  headerBackButton: {
+    padding: Spacing.xs,
+  },
+  headerTitle: {
+    ...Typography.h4,
+    color: Colors.backgroundCard,
+  },
+  headerFavoriteButton: {
+    padding: Spacing.xs,
   },
   scrollView: {
     flex: 1,
   },
   eventPhoto: {
     width: '100%',
-    height: 250,
-    backgroundColor: '#F3F4F6',
+    height: 300,
+    backgroundColor: Colors.background,
   },
   noPhotoPlaceholder: {
     justifyContent: 'center',
     alignItems: 'center',
   },
   content: {
-    padding: 16,
+    padding: Spacing.md,
   },
-  header: {
-    marginBottom: 24,
+  eventHeader: {
+    marginBottom: Spacing.lg,
   },
   titleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
   },
   title: {
+    ...Typography.h2,
     flex: 1,
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#0C3B2E',
-    marginRight: 12,
+    marginRight: Spacing.md,
   },
   eventType: {
-    fontSize: 14,
+    ...Typography.bodySmall,
+    color: Colors.primary,
     fontWeight: '600',
-    color: '#6D9773',
     textTransform: 'uppercase',
   },
   badge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    borderRadius: BorderRadius.round,
   },
   publicBadge: {
-    backgroundColor: '#D1FAE5',
+    backgroundColor: Colors.secondary + '20',
   },
   privateBadge: {
-    backgroundColor: '#FEF3C7',
+    backgroundColor: Colors.primary + '20',
   },
   badgeText: {
-    fontSize: 12,
+    ...Typography.caption,
+    color: Colors.textDark,
     fontWeight: '600',
-    color: '#065F46',
   },
-  infoSection: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+  quickActions: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+    marginBottom: Spacing.lg,
+  },
+  actionCard: {
+    flex: 1,
+    backgroundColor: Colors.backgroundCard,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    alignItems: 'center',
+    ...Shadows.small,
+  },
+  actionCardText: {
+    ...Typography.bodySmall,
+    marginTop: Spacing.xs,
+    fontWeight: '600',
+  },
+  infoCard: {
+    backgroundColor: Colors.backgroundCard,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+    ...Shadows.small,
   },
   infoRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: BorderRadius.sm,
+    backgroundColor: Colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Spacing.md,
+  },
   infoText: {
-    marginLeft: 12,
     flex: 1,
   },
   infoLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#9CA3AF',
-    marginBottom: 4,
+    ...Typography.caption,
     textTransform: 'uppercase',
+    marginBottom: Spacing.xs,
   },
   infoValue: {
-    fontSize: 16,
+    ...Typography.body,
     fontWeight: '600',
-    color: '#0C3B2E',
   },
-  descriptionSection: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+  descriptionCard: {
+    backgroundColor: Colors.backgroundCard,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+    ...Shadows.small,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#0C3B2E',
-    marginBottom: 12,
+    ...Typography.h4,
+    marginBottom: Spacing.md,
   },
   description: {
-    fontSize: 16,
-    color: '#6B7280',
+    ...Typography.body,
     lineHeight: 24,
   },
-  attendeesSection: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 24,
+  attendeesCard: {
+    backgroundColor: Colors.backgroundCard,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    marginBottom: Spacing.xl,
+    ...Shadows.small,
   },
   attendeesList: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 12,
+    gap: Spacing.md,
   },
   attendeeItem: {
     alignItems: 'center',
     width: 70,
   },
   attendeeAvatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    marginBottom: 4,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    marginBottom: Spacing.xs,
   },
   attendeeAvatarPlaceholder: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#E8F4EC',
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: Colors.background,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: Spacing.xs,
   },
   attendeeName: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#6B7280',
+    ...Typography.caption,
     textAlign: 'center',
   },
   footer: {
-    backgroundColor: '#FFFFFF',
-    padding: 16,
+    backgroundColor: Colors.backgroundCard,
+    padding: Spacing.md,
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    borderTopColor: Colors.border,
+    ...Shadows.medium,
   },
   rsvpButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#6D9773',
-    paddingVertical: 16,
-    borderRadius: 12,
-    gap: 8,
+    backgroundColor: Colors.primary,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.md,
+    gap: Spacing.sm,
   },
   rsvpButtonActive: {
-    backgroundColor: '#BB8A52',
+    backgroundColor: Colors.secondary,
   },
   rsvpButtonDisabled: {
-    backgroundColor: '#9CA3AF',
+    backgroundColor: Colors.textLight,
   },
   rsvpButtonText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    ...Typography.button,
   },
 });
