@@ -115,124 +115,55 @@ export default function BrowseCategoriesScreen() {
         <View style={styles.placeholder} />
       </View>
 
-      {/* List View (Web-compatible) */}
-      {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#6D9773" />
-          <Text style={styles.loadingText}>Loading nearby places...</Text>
+      {/* Stats Summary */}
+      <View style={styles.statsContainer}>
+        <View style={styles.statCard}>
+          <Text style={styles.statNumber}>{venues.length}</Text>
+          <Text style={styles.statLabel}>Venues</Text>
         </View>
-      ) : (
-        <ScrollView style={styles.listContainer}>
-          {/* Venues Section */}
-          {showVenues && venues.length > 0 && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>📍 Nearby Venues ({venues.length})</Text>
-              {venues.map((venue) => (
-                <TouchableOpacity
-                  key={venue.id}
-                  style={styles.listItem}
-                  onPress={() => router.push(`/venue/${venue.id}`)}
-                >
-                  <View style={[styles.iconCircle, { backgroundColor: getMarkerColor(venue.category) }]}>
-                    <Ionicons name="business" size={24} color="#FFFFFF" />
-                  </View>
-                  <View style={styles.itemContent}>
-                    <Text style={styles.itemTitle}>{venue.name}</Text>
-                    <Text style={styles.itemCategory}>{venue.category}</Text>
-                    <View style={styles.itemMeta}>
-                      <View style={styles.ratingRow}>
-                        <Ionicons name="star" size={14} color="#FFBA00" />
-                        <Text style={styles.ratingText}>
-                          {venue.rating > 0 ? venue.rating.toFixed(1) : 'New'}
-                        </Text>
-                      </View>
-                      <Text style={styles.priceText}>
-                        {venue.pricing?.type === 'free' ? 'FREE' : `$${venue.pricing?.amount}`}
-                      </Text>
-                    </View>
-                    {venue.location?.address && (
-                      <Text style={styles.itemAddress}>{venue.location.address}</Text>
-                    )}
-                  </View>
-                  <Ionicons name="chevron-forward" size={20} color="#6B7280" />
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-
-          {/* Events Section */}
-          {showEvents && events.length > 0 && (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>📅 Nearby Events ({events.length})</Text>
-              {events.map((event) => (
-                <TouchableOpacity
-                  key={event.id}
-                  style={styles.listItem}
-                  onPress={() => router.push(`/event/${event.id}`)}
-                >
-                  <View style={[styles.iconCircle, { backgroundColor: '#3B82F6' }]}>
-                    <Ionicons name="calendar" size={24} color="#FFFFFF" />
-                  </View>
-                  <View style={styles.itemContent}>
-                    <Text style={styles.itemTitle}>{event.title}</Text>
-                    <Text style={styles.itemHost}>By {event.host_name}</Text>
-                    <Text style={styles.itemDate}>
-                      {new Date(event.date).toLocaleDateString()}
-                    </Text>
-                    {event.location?.address && (
-                      <Text style={styles.itemAddress}>{event.location.address}</Text>
-                    )}
-                  </View>
-                  <Ionicons name="chevron-forward" size={20} color="#6B7280" />
-                </TouchableOpacity>
-              ))}
-            </View>
-          )}
-
-          {venues.length === 0 && events.length === 0 && (
-            <View style={styles.emptyContainer}>
-              <Ionicons name="location-outline" size={64} color="#9CA3AF" />
-              <Text style={styles.emptyText}>No nearby places found</Text>
-            </View>
-          )}
-        </ScrollView>
-      )}
-
-      {/* Filter Buttons */}
-      <View style={styles.filterContainer}>
-        <TouchableOpacity
-          style={[styles.filterButton, showVenues && styles.filterButtonActive]}
-          onPress={() => setShowVenues(!showVenues)}
-        >
-          <Ionicons name="business" size={20} color={showVenues ? '#FFFFFF' : '#6D9773'} />
-          <Text style={[styles.filterButtonText, showVenues && styles.filterButtonTextActive]}>
-            Venues ({venues.length})
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.filterButton, showEvents && styles.filterButtonActive]}
-          onPress={() => setShowEvents(!showEvents)}
-        >
-          <Ionicons name="calendar" size={20} color={showEvents ? '#FFFFFF' : '#3B82F6'} />
-          <Text style={[styles.filterButtonText, showEvents && styles.filterButtonTextActive]}>
-            Events ({events.length})
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Legend */}
-      <View style={styles.legend}>
-        <Text style={styles.legendTitle}>Map Legend:</Text>
-        <View style={styles.legendItem}>
-          <View style={[styles.legendDot, { backgroundColor: '#6D9773' }]} />
-          <Text style={styles.legendText}>Venues</Text>
+        <View style={styles.statCard}>
+          <Text style={styles.statNumber}>{events.length}</Text>
+          <Text style={styles.statLabel}>Events</Text>
         </View>
-        <View style={styles.legendItem}>
-          <View style={[styles.legendDot, { backgroundColor: '#3B82F6' }]} />
-          <Text style={styles.legendText}>Events</Text>
+        <View style={styles.statCard}>
+          <Text style={styles.statNumber}>{CATEGORIES.length - 1}</Text>
+          <Text style={styles.statLabel}>Categories</Text>
         </View>
       </View>
+
+      {/* Category Grid */}
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={styles.sectionTitle}>Explore by Category</Text>
+        <View style={styles.grid}>
+          {CATEGORIES.filter(cat => cat.id !== 'all').map((category, index) => {
+            const count = categoryCounts[category.id] || 0;
+            const bgColor = getCategoryColor(index);
+            
+            return (
+              <TouchableOpacity
+                key={category.id}
+                style={[styles.categoryCard, { backgroundColor: bgColor }]}
+                onPress={() => handleCategoryPress(category.id)}
+                activeOpacity={0.8}
+              >
+                <View style={styles.categoryIconContainer}>
+                  <Ionicons name={category.icon as any} size={32} color={Colors.backgroundCard} />
+                </View>
+                <Text style={styles.categoryTitle} numberOfLines={2}>
+                  {category.label}
+                </Text>
+                <View style={styles.categoryBadge}>
+                  <Text style={styles.categoryCount}>{count}</Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </ScrollView>
     </View>
   );
 }
