@@ -155,7 +155,7 @@ export default function ProfileScreen() {
               style={styles.editButton}
               onPress={() => setIsEditing(true)}
             >
-              <Ionicons name=\"pencil\" size={18} color={Colors.primary} />
+              <Ionicons name="pencil" size={18} color={Colors.primary} />
               <Text style={styles.editButtonText}>Edit Profile</Text>
             </TouchableOpacity>
 
@@ -165,14 +165,14 @@ export default function ProfileScreen() {
               onPress={() => router.push('/favorites')}
             >
               <View style={styles.favoritesHeader}>
-                <Ionicons name=\"heart\" size={24} color={Colors.primary} />
+                <Ionicons name="heart" size={24} color={Colors.primary} />
                 <Text style={styles.favoritesTitle}>Favorite Spots</Text>
               </View>
               <Text style={styles.favoritesCount}>
                 {favorites.length} {favorites.length === 1 ? 'place' : 'places'} saved
               </Text>
               <View style={styles.favoritesArrow}>
-                <Ionicons name=\"chevron-forward\" size={20} color={Colors.medium} />
+                <Ionicons name="chevron-forward" size={20} color={Colors.medium} />
               </View>
             </TouchableOpacity>
 
@@ -196,17 +196,17 @@ export default function ProfileScreen() {
               <Text style={styles.sectionTitle}>Quick Stats</Text>
               <View style={styles.statsGrid}>
                 <View style={styles.statCard}>
-                  <Ionicons name=\"calendar\" size={24} color={Colors.primary} />
+                  <Ionicons name="calendar" size={24} color={Colors.primary} />
                   <Text style={styles.statNumber}>0</Text>
                   <Text style={styles.statLabel}>Events Hosted</Text>
                 </View>
                 <View style={styles.statCard}>
-                  <Ionicons name=\"ticket\" size={24} color={Colors.primary} />
+                  <Ionicons name="ticket" size={24} color={Colors.primary} />
                   <Text style={styles.statNumber}>0</Text>
                   <Text style={styles.statLabel}>Bookings</Text>
                 </View>
                 <View style={styles.statCard}>
-                  <Ionicons name=\"star\" size={24} color={Colors.primary} />
+                  <Ionicons name="star" size={24} color={Colors.primary} />
                   <Text style={styles.statNumber}>0</Text>
                   <Text style={styles.statLabel}>Reviews</Text>
                 </View>
