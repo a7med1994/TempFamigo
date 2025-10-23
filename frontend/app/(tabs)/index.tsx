@@ -82,6 +82,25 @@ export default function DiscoverScreen() {
     }
   };
 
+  // Filter venues based on selected category
+  const getFilteredVenues = () => {
+    if (selectedCategory === 'all') return venues;
+    return venues.filter(venue => 
+      venue.category.toLowerCase() === selectedCategory.toLowerCase()
+    );
+  };
+
+  // Filter events based on selected category
+  const getFilteredEvents = () => {
+    if (selectedCategory === 'all') return events;
+    return events.filter(event => 
+      event.event_type.toLowerCase() === selectedCategory.toLowerCase()
+    );
+  };
+
+  const filteredVenues = getFilteredVenues();
+  const filteredEvents = getFilteredEvents();
+
   const handleToggleFavorite = async (item: any, type: string) => {
     if (!user?.id) {
       alert('Please complete your profile first');
