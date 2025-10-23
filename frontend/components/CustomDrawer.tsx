@@ -79,6 +79,12 @@ export default function CustomDrawer({ onClose }: CustomDrawerProps) {
 
       {/* Footer */}
       <View style={styles.footer}>
+        {/* Three Dots Logo */}
+        <View style={styles.dotsLogoContainer}>
+          <View style={styles.dotLogo} />
+          <View style={styles.dotLogo} />
+          <View style={styles.dotLogo} />
+        </View>
         <Text style={styles.appName}>TOTSU</Text>
         <Text style={styles.tagline}>Parents made for families</Text>
       </View>
