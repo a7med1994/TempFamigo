@@ -1,6 +1,6 @@
 import { Tabs, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { TouchableOpacity, View, StyleSheet, Image } from 'react-native';
+import { TouchableOpacity, View, StyleSheet, Image, Platform } from 'react-native';
 import { useStore } from '../../store/useStore';
 import { useDrawer } from '../../contexts/DrawerContext';
 import { Colors } from '../../constants/TotsuTheme';
