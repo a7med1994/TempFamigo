@@ -18,6 +18,7 @@ import { useStore } from '../../store/useStore';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/NewTheme';
 import { CATEGORIES, QUICK_FILTERS } from '../../constants/Categories';
 import api from '../../utils/api';
+import NetflixCarousel, { NETFLIX_CARD_WIDTH } from '../../components/NetflixCarousel';
 
 const { width } = Dimensions.get('window');
 const isWeb = Platform.OS === 'web';
