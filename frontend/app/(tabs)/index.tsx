@@ -524,6 +524,7 @@ const styles = StyleSheet.create({
   searchContainer: {
     padding: Spacing.md,
     backgroundColor: Colors.backgroundCard,
+    paddingBottom: Spacing.lg,
   },
   searchBarRow: {
     flexDirection: 'row',
