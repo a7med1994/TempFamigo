@@ -7,7 +7,7 @@ import {
   Animated,
   Platform,
 } from 'react-native';
-import { Colors, Spacing, BorderRadius, Shadows, REACTIONS } from '../constants/NewTheme';
+import { Colors, Spacing, BorderRadius, Shadows, REACTIONS } from '../constants/DarkAirbnbTheme';
 
 interface ReactionPickerProps {
   visible: boolean;
