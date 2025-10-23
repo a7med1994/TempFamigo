@@ -578,11 +578,11 @@ const styles = StyleSheet.create({
     fontSize: 10,
   },
   carouselSection: {
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.lg,
     backgroundColor: Colors.backgroundCard,
-    paddingVertical: Spacing.md,
+    paddingVertical: Spacing.lg,
   },
-  carouselTitle: {
+  carouselSectionTitle: {
     ...Typography.h3,
     paddingHorizontal: Spacing.md,
     marginBottom: Spacing.md,
