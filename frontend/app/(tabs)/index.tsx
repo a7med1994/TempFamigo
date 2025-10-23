@@ -1,471 +1,356 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  TextInput,
   Image,
-  RefreshControl,
-  ActivityIndicator,
+  TextInput,
+  Platform,
   Dimensions,
-  FlatList,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import api from '../../utils/api';
-import { CATEGORIES, AGE_RANGES, PRICE_TYPES } from '../../constants/Categories';
+import { Ionicons } from '@expo/vector-icons';
 import { useStore } from '../../store/useStore';
+import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/AirbnbTheme';
+import { CATEGORIES, QUICK_FILTERS } from '../../constants/Categories';
+import api from '../../utils/api';
 
 const { width } = Dimensions.get('window');
-
-// Hero carousel data with custom color palette
-const HERO_CARDS = [
-  {
-    id: '1',
-    title: '🎪 Circus in Melbourne this weekend',
-    subtitle: 'Amazing acrobats & clowns',
-    emoji: '🎪',
-    bgColor: '#FFF5E6',
-    textColor: '#BB8A52',
-  },
-  {
-    id: '2',
-    title: '🐮 Visit the Happy Cow Farm',
-    subtitle: 'Feed animals & tractor rides',
-    emoji: '🐮',
-    bgColor: '#E8F4EC',
-    textColor: '#0C3B2E',
-  },
-  {
-    id: '3',
-    title: '🎂 Host your birthday party',
-    subtitle: 'Make it unforgettable!',
-    emoji: '🎂',
-    bgColor: '#FFF9E6',
-    textColor: '#FFBA00',
-  },
-  {
-    id: '4',
-    title: '🎨 Art & Craft Workshop',
-    subtitle: 'Unleash creativity this week',
-    emoji: '🎨',
-    bgColor: '#F0F7F1',
-    textColor: '#6D9773',
-  },
-];
-
-// Quick filter options
-const QUICK_FILTERS = [
-  { id: 'today', label: 'Today', icon: 'today' },
-  { id: 'weekend', label: 'This weekend', icon: 'calendar' },
-  { id: 'free', label: 'Free', icon: 'pricetag' },
-  { id: 'indoor', label: 'Indoors', icon: 'home' },
-  { id: 'toddlers', label: 'Toddlers', icon: 'happy' },
-];
+const isWeb = Platform.OS === 'web';
 
 interface Venue {
   id: string;
   name: string;
-  description: string;
   category: string;
-  location: any;
-  images: string[];
-  pricing: any;
-  age_range: any;
+  location: { city: string };
   rating: number;
-  total_reviews: number;
+  price_type: string;
+  age_range: { min: number; max: number };
+  image?: string;
+}
+
+interface Event {
+  id: string;
+  title: string;
+  event_type: string;
+  date: string;
+  location: { city: string };
+  current_participants: number;
+  max_participants: number;
+  photos?: string[];
 }
 
 export default function DiscoverScreen() {
-  const [venues, setVenues] = useState<Venue[]>([]);
-  const [recommendations, setRecommendations] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
+  const { user, isFavorite, addFavorite, removeFavorite } = useStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedAgeRange, setSelectedAgeRange] = useState<any>(null);
-  const [selectedPriceType, setSelectedPriceType] = useState('all');
-  const [selectedQuickFilter, setSelectedQuickFilter] = useState<string | null>(null);
-  const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
-  const heroScrollRef = useRef<FlatList>(null);
-  const { user } = useStore();
-
-  // Auto-scroll hero carousel
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentHeroIndex((prev) => {
-        const nextIndex = (prev + 1) % HERO_CARDS.length;
-        heroScrollRef.current?.scrollToIndex({ index: nextIndex, animated: true });
-        return nextIndex;
-      });
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
+  const [venues, setVenues] = useState<Venue[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchVenues();
-    fetchRecommendations();
-  }, [selectedCategory, selectedAgeRange, selectedPriceType]);
+    fetchData();
+  }, [selectedCategory]);
 
-  const fetchVenues = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const params: any = {};
-      
-      if (selectedCategory !== 'all') {
-        params.category = selectedCategory;
-      }
-      if (selectedAgeRange) {
-        params.min_age = selectedAgeRange.min;
-        params.max_age = selectedAgeRange.max;
-      }
-      if (selectedPriceType !== 'all') {
-        params.price_type = selectedPriceType;
-      }
-      if (searchQuery) {
-        params.search = searchQuery;
-      }
-
-      const response = await api.get('/venues', { params });
-      setVenues(response.data);
+      const [venuesRes, eventsRes] = await Promise.all([
+        api.get('/venues'),
+        api.get('/events'),
+      ]);
+      setVenues(venuesRes.data);
+      setEvents(eventsRes.data);
     } catch (error) {
-      console.error('Error fetching venues:', error);
+      console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchRecommendations = async () => {
-    try {
-      const response = await api.post('/recommendations', {
-        user_location: user?.location || { city: 'Melbourne', coordinates: { lat: -37.8136, lng: 144.9631 } },
-        kids_ages: user?.kidsAges || [5, 8],
-        weather: 'sunny',
-        time_of_day: new Date().getHours() < 12 ? 'morning' : 'afternoon',
+  const handleToggleFavorite = async (item: any, type: string) => {
+    if (!user?.id) {
+      alert('Please complete your profile first');
+      return;
+    }
+
+    const itemId = item.id || item._id;
+    
+    if (isFavorite(itemId)) {
+      await api.post('/favorites/remove', {
+        user_id: user.id,
+        item_id: itemId,
       });
-      setRecommendations(response.data.recommendations || []);
-    } catch (error) {
-      console.error('Error fetching recommendations:', error);
+      removeFavorite(itemId);
+    } else {
+      const favorite = {
+        user_id: user.id,
+        item_id: itemId,
+        item_type: type,
+        item_data: {
+          title: item.title || item.name,
+          location: item.location,
+          image: item.photos?.[0] || item.image,
+        },
+      };
+      await api.post('/favorites/add', favorite);
+      addFavorite({
+        id: `${user.id}_${itemId}`,
+        item_id: itemId,
+        item_type: type,
+        item_data: favorite.item_data,
+        created_at: new Date().toISOString(),
+      });
     }
   };
 
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await fetchVenues();
-    await fetchRecommendations();
-    setRefreshing(false);
-  };
+  const renderVenueCard = (venue: Venue) => {
+    const itemId = venue.id || (venue as any)._id;
+    const favorited = isFavorite(itemId);
 
-  const handleSearch = () => {
-    fetchVenues();
-  };
-
-  const renderVenueCard = (venue: Venue) => (
-    <TouchableOpacity
-      key={venue.id}
-      style={styles.venueCard}
-      onPress={() => router.push(`/venue/${venue.id}`)}
-    >
-      {venue.images && venue.images.length > 0 ? (
-        <Image
-          source={{ uri: venue.images[0] }}
-          style={styles.venueImage}
-          resizeMode="cover"
-        />
-      ) : (
-        <View style={[styles.venueImage, styles.noImagePlaceholder]}>
-          <Ionicons name="image-outline" size={40} color="#9CA3AF" />
-        </View>
-      )}
-      
-      <View style={styles.venueInfo}>
-        <Text style={styles.venueName} numberOfLines={1}>
-          {venue.name}
-        </Text>
-        <Text style={styles.venueCategory}>{venue.category}</Text>
-        <Text style={styles.venueDescription} numberOfLines={2}>
-          {venue.description}
-        </Text>
+    return (
+      <TouchableOpacity
+        key={itemId}
+        style={styles.card}
+        onPress={() => router.push(`/venue/${itemId}`)}
+        activeOpacity={0.8}
+      >
+        {venue.image ? (
+          <Image source={{ uri: venue.image }} style={styles.cardImage} />
+        ) : (
+          <View style={[styles.cardImage, styles.cardImagePlaceholder]}>
+            <Ionicons name="location" size={40} color={Colors.light} />
+          </View>
+        )}
         
-        <View style={styles.venueFooter}>
-          <View style={styles.ratingContainer}>
-            <Ionicons name="star" size={16} color="#FFBA00" />
-            <Text style={styles.ratingText}>
-              {venue.rating > 0 ? venue.rating.toFixed(1) : 'New'}
+        {/* Favorite Heart Button */}
+        <TouchableOpacity
+          style={styles.favoriteButton}
+          onPress={(e) => {
+            e.stopPropagation();
+            handleToggleFavorite(venue, 'venue');
+          }}
+        >
+          <Ionicons
+            name={favorited ? 'heart' : 'heart-outline'}
+            size={24}
+            color={favorited ? Colors.primary : Colors.background}
+          />
+        </TouchableOpacity>
+
+        <View style={styles.cardContent}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle} numberOfLines={1}>
+              {venue.name}
             </Text>
-            {venue.total_reviews > 0 && (
-              <Text style={styles.reviewCount}>({venue.total_reviews})</Text>
-            )}
+            <View style={styles.ratingRow}>
+              <Ionicons name="star" size={14} color="#FFBA00" />
+              <Text style={styles.ratingText}>{venue.rating.toFixed(1)}</Text>
+            </View>
           </View>
-          
-          <View style={styles.priceTag}>
-            <Text style={styles.priceText}>
-              {venue.pricing?.type === 'free' ? 'FREE' : `$${venue.pricing?.amount || 0}`}
-            </Text>
+          <View style={styles.cardInfo}>
+            <View style={styles.infoRow}>
+              <Ionicons name="location-outline" size={14} color={Colors.medium} />
+              <Text style={styles.infoText}>{venue.location.city}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Ionicons name="pricetag-outline" size={14} color={Colors.medium} />
+              <Text style={styles.infoText}>{venue.price_type}</Text>
+            </View>
           </View>
         </View>
-      </View>
-    </TouchableOpacity>
-  );
+      </TouchableOpacity>
+    );
+  };
 
-  const renderHeroCard = ({ item }: { item: typeof HERO_CARDS[0] }) => (
-    <View style={[styles.heroCard, { backgroundColor: item.bgColor }]}>
-      <Text style={styles.heroEmoji}>{item.emoji}</Text>
-      <Text style={[styles.heroTitle, { color: item.textColor }]}>{item.title}</Text>
-      <Text style={[styles.heroSubtitle, { color: item.textColor }]}>{item.subtitle}</Text>
-    </View>
-  );
+  const renderEventCard = (event: Event) => {
+    const itemId = event.id || (event as any)._id;
+    const favorited = isFavorite(itemId);
+
+    return (
+      <TouchableOpacity
+        key={itemId}
+        style={styles.card}
+        onPress={() => router.push(`/event/${itemId}`)}
+        activeOpacity={0.8}
+      >
+        {event.photos && event.photos.length > 0 ? (
+          <Image source={{ uri: event.photos[0] }} style={styles.cardImage} />
+        ) : (
+          <View style={[styles.cardImage, styles.cardImagePlaceholder]}>
+            <Ionicons name="calendar" size={40} color={Colors.light} />
+          </View>
+        )}
+        
+        {/* Favorite Heart Button */}
+        <TouchableOpacity
+          style={styles.favoriteButton}
+          onPress={(e) => {
+            e.stopPropagation();
+            handleToggleFavorite(event, 'event');
+          }}
+        >
+          <Ionicons
+            name={favorited ? 'heart' : 'heart-outline'}
+            size={24}
+            color={favorited ? Colors.primary : Colors.background}
+          />
+        </TouchableOpacity>
+
+        <View style={styles.cardContent}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle} numberOfLines={1}>
+              {event.title}
+            </Text>
+            <View style={styles.participantsRow}>
+              <Ionicons name="people" size={14} color={Colors.medium} />
+              <Text style={styles.infoText}>
+                {event.current_participants}/{event.max_participants}
+              </Text>
+            </View>
+          </View>
+          <View style={styles.cardInfo}>
+            <View style={styles.infoRow}>
+              <Ionicons name="location-outline" size={14} color={Colors.medium} />
+              <Text style={styles.infoText}>{event.location.city}</Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Ionicons name="calendar-outline" size={14} color={Colors.medium} />
+              <Text style={styles.infoText}>
+                {new Date(event.date).toLocaleDateString()}
+              </Text>
+            </View>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.container}>
-      {/* Location Header */}
-      <View style={styles.locationHeader}>
-        <TouchableOpacity 
-          style={styles.locationButton}
-          onPress={() => router.push('/map-view')}
-        >
-          <Ionicons name="location" size={20} color="#BB8A52" />
-          <Text style={styles.locationText}>
-            {user?.location?.city || 'Near me'}
-          </Text>
-          <Ionicons name="chevron-down" size={16} color="#6B7280" />
-        </TouchableOpacity>
-      </View>
-
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <View style={styles.searchBar}>
-          <Ionicons name="search" size={20} color="#9CA3AF" />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Find activities, playgrounds, farms…"
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            onSubmitEditing={handleSearch}
-            returnKeyType="search"
-          />
-        </View>
-      </View>
-
-      {/* Quick Filters */}
-      <View style={styles.quickFiltersContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {QUICK_FILTERS.map((filter) => (
-            <TouchableOpacity
-              key={filter.id}
-              style={[
-                styles.quickFilterChip,
-                selectedQuickFilter === filter.id && styles.quickFilterChipActive,
-              ]}
-              onPress={() =>
-                setSelectedQuickFilter(
-                  selectedQuickFilter === filter.id ? null : filter.id
-                )
-              }
-            >
-              <Ionicons
-                name={filter.icon as any}
-                size={14}
-                color={selectedQuickFilter === filter.id ? '#FFFFFF' : '#6D9773'}
-              />
-              <Text
-                style={[
-                  styles.quickFilterText,
-                  selectedQuickFilter === filter.id && styles.quickFilterTextActive,
-                ]}
-              >
-                {filter.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
-
       <ScrollView
         style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-        }
       >
-        {/* Hero Carousel */}
-        <View style={styles.heroSection}>
-          <FlatList
-            ref={heroScrollRef}
-            data={HERO_CARDS}
-            renderItem={renderHeroCard}
-            keyExtractor={(item) => item.id}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            onMomentumScrollEnd={(event) => {
-              const index = Math.round(
-                event.nativeEvent.contentOffset.x / (width - 32)
-              );
-              setCurrentHeroIndex(index);
-            }}
-          />
-          <View style={styles.heroPagination}>
-            {HERO_CARDS.map((_, index) => (
-              <View
-                key={index}
-                style={[
-                  styles.heroDot,
-                  currentHeroIndex === index && styles.heroDotActive,
-                ]}
-              />
-            ))}
+        {/* Search Bar */}
+        <View style={styles.searchContainer}>
+          <View style={styles.searchBar}>
+            <Ionicons name="search" size={20} color={Colors.medium} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Where do you want to go?"
+              placeholderTextColor={Colors.medium}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
           </View>
         </View>
-        {/* AI Recommendations */}
-        {recommendations.length > 0 && (
-          <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Ionicons name="sparkles" size={22} color="#FFBA00" />
-              <Text style={styles.sectionTitle}>AI Picks for You</Text>
-            </View>
-            <Text style={styles.sectionSubtitle}>
-              Based on weather, time, and your kids' ages
-            </Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {recommendations.map((rec, index) => {
-                const venue = venues.find(v => v.id === rec.venue_id);
-                if (!venue) return null;
-                return (
-                  <View key={index} style={styles.recommendationCard}>
-                    {renderVenueCard(venue)}
-                    <Text style={styles.recommendationReason}>
-                      {rec.reason}
-                    </Text>
-                  </View>
-                );
-              })}
-            </ScrollView>
-          </View>
-        )}
 
-        {/* Category Filter */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Categories</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {CATEGORIES.map((category) => (
+        {/* Categories */}
+        <View style={styles.categoriesSection}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.categoriesContent}
+          >
+            {CATEGORIES.map((cat) => (
               <TouchableOpacity
-                key={category.id}
+                key={cat.id}
                 style={[
-                  styles.filterChip,
-                  selectedCategory === category.id && styles.filterChipActive,
+                  styles.categoryChip,
+                  selectedCategory === cat.id && styles.categoryChipActive,
                 ]}
-                onPress={() => setSelectedCategory(category.id)}
+                onPress={() => setSelectedCategory(cat.id)}
               >
                 <Ionicons
-                  name={category.icon as any}
-                  size={16}
-                  color={selectedCategory === category.id ? '#FFFFFF' : '#6D9773'}
+                  name={cat.icon as any}
+                  size={20}
+                  color={
+                    selectedCategory === cat.id ? Colors.background : Colors.dark
+                  }
                 />
                 <Text
                   style={[
-                    styles.filterChipText,
-                    selectedCategory === category.id && styles.filterChipTextActive,
+                    styles.categoryText,
+                    selectedCategory === cat.id && styles.categoryTextActive,
                   ]}
                 >
-                  {category.label}
+                  {cat.label}
                 </Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
         </View>
 
-        {/* Age Range Filter */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Age Range</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <TouchableOpacity
-              style={[
-                styles.filterChip,
-                !selectedAgeRange && styles.filterChipActive,
-              ]}
-              onPress={() => setSelectedAgeRange(null)}
-            >
-              <Text
-                style={[
-                  styles.filterChipText,
-                  !selectedAgeRange && styles.filterChipTextActive,
-                ]}
-              >
-                All Ages
-              </Text>
-            </TouchableOpacity>
-            {AGE_RANGES.map((range) => (
-              <TouchableOpacity
-                key={range.id}
-                style={[
-                  styles.filterChip,
-                  selectedAgeRange?.id === range.id && styles.filterChipActive,
-                ]}
-                onPress={() => setSelectedAgeRange(range)}
-              >
-                <Text
-                  style={[
-                    styles.filterChipText,
-                    selectedAgeRange?.id === range.id && styles.filterChipTextActive,
-                  ]}
-                >
-                  {range.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-
-        {/* Price Filter */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Price</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            {PRICE_TYPES.map((price) => (
-              <TouchableOpacity
-                key={price.id}
-                style={[
-                  styles.filterChip,
-                  selectedPriceType === price.id && styles.filterChipActive,
-                ]}
-                onPress={() => setSelectedPriceType(price.id)}
-              >
-                <Text
-                  style={[
-                    styles.filterChipText,
-                    selectedPriceType === price.id && styles.filterChipTextActive,
-                  ]}
-                >
-                  {price.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-
-        {/* Venues List */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            {venues.length} Activities Found
+        {/* Hero Section */}
+        <View style={styles.heroSection}>
+          <Text style={styles.heroTitle}>Discover Amazing Places</Text>
+          <Text style={styles.heroSubtitle}>
+            Find the perfect activities for your family
           </Text>
-          {loading ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#6D9773" />
-            </View>
-          ) : venues.length === 0 ? (
-            <View style={styles.emptyContainer}>
-              <Ionicons name="sad-outline" size={48} color="#9CA3AF" />
-              <Text style={styles.emptyText}>No activities found</Text>
-              <Text style={styles.emptySubtext}>Try adjusting your filters</Text>
-            </View>
-          ) : (
-            <View style={styles.venuesList}>
-              {venues.map((venue) => renderVenueCard(venue))}
-            </View>
-          )}
         </View>
+
+        {/* Quick Filters */}
+        <View style={styles.filtersSection}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.filtersContent}
+          >
+            {QUICK_FILTERS.map((filter) => (
+              <TouchableOpacity key={filter.id} style={styles.filterChip}>
+                <Ionicons name={filter.icon as any} size={16} color={Colors.dark} />
+                <Text style={styles.filterText}>{filter.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* Venues Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Popular Venues</Text>
+            <TouchableOpacity>
+              <Text style={styles.seeAllText}>See all</Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.cardsContainer}
+          >
+            {venues.slice(0, 10).map(renderVenueCard)}
+          </ScrollView>
+        </View>
+
+        {/* Events Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Upcoming Events</Text>
+            <TouchableOpacity>
+              <Text style={styles.seeAllText}>See all</Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.cardsContainer}
+          >
+            {events.slice(0, 10).map(renderEventCard)}
+          </ScrollView>
+        </View>
+
+        {/* Near Me Button */}
+        <TouchableOpacity
+          style={styles.nearMeButton}
+          onPress={() => router.push('/map-view')}
+        >
+          <Ionicons name="location" size={20} color={Colors.background} />
+          <Text style={styles.nearMeText}>Explore Near Me</Text>
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );
@@ -474,272 +359,202 @@ export default function DiscoverScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
-  locationHeader: {
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  locationButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  locationText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#0C3B2E',
-  },
-  searchContainer: {
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F3F4F6',
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    height: 44,
-  },
-  searchInput: {
-    flex: 1,
-    marginLeft: 8,
-    fontSize: 16,
-    color: '#0C3B2E',
-  },
-  quickFiltersContainer: {
-    backgroundColor: '#FFFFFF',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
-  },
-  quickFilterChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#E8F4EC',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginRight: 8,
-    gap: 6,
-  },
-  quickFilterChipActive: {
-    backgroundColor: '#6D9773',
-  },
-  quickFilterText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#0C3B2E',
-  },
-  quickFilterTextActive: {
-    color: '#FFFFFF',
+    backgroundColor: Colors.background,
   },
   scrollView: {
     flex: 1,
   },
-  heroSection: {
-    marginVertical: 16,
-    paddingLeft: 16,
+  scrollContent: {
+    paddingBottom: Spacing.xl,
   },
-  heroCard: {
-    width: width - 32,
-    height: 160,
-    borderRadius: 20,
-    padding: 24,
-    marginRight: 16,
-    justifyContent: 'center',
+  searchContainer: {
+    padding: Spacing.md,
+    backgroundColor: Colors.background,
+  },
+  searchBar: {
+    flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 5,
+    backgroundColor: Colors.backgroundGray,
+    borderRadius: BorderRadius.round,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    gap: Spacing.sm,
+    borderWidth: 1,
+    borderColor: Colors.light,
   },
-  heroEmoji: {
-    fontSize: 48,
-    marginBottom: 12,
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: Colors.dark,
+    ...Platform.select({
+      web: {
+        outlineStyle: 'none',
+      },
+    }),
+  },
+  categoriesSection: {
+    marginBottom: Spacing.md,
+  },
+  categoriesContent: {
+    paddingHorizontal: Spacing.md,
+    gap: Spacing.sm,
+  },
+  categoryChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.round,
+    backgroundColor: Colors.backgroundGray,
+    gap: Spacing.xs,
+    borderWidth: 1,
+    borderColor: Colors.light,
+  },
+  categoryChipActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  categoryText: {
+    ...Typography.bodySmall,
+    fontWeight: '600',
+  },
+  categoryTextActive: {
+    color: Colors.background,
+  },
+  heroSection: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.lg,
   },
   heroTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: 4,
+    ...Typography.h1,
+    marginBottom: Spacing.xs,
   },
   heroSubtitle: {
-    fontSize: 14,
-    fontWeight: '500',
-    textAlign: 'center',
+    ...Typography.body,
+    color: Colors.medium,
   },
-  heroPagination: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 12,
-    gap: 6,
+  filtersSection: {
+    marginBottom: Spacing.lg,
   },
-  heroDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#D1D5DB',
-  },
-  heroDotActive: {
-    width: 24,
-    backgroundColor: '#6D9773',
-  },
-  section: {
-    marginTop: 16,
-    paddingHorizontal: 16,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#0C3B2E',
-    marginLeft: 8,
-  },
-  sectionSubtitle: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginBottom: 12,
+  filtersContent: {
+    paddingHorizontal: Spacing.md,
+    gap: Spacing.sm,
   },
   filterChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#EEF2FF',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginRight: 8,
-    marginBottom: 8,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.round,
+    backgroundColor: Colors.background,
+    gap: Spacing.xs,
+    borderWidth: 1,
+    borderColor: Colors.light,
   },
-  filterChipActive: {
-    backgroundColor: '#6D9773',
+  filterText: {
+    ...Typography.bodySmall,
   },
-  filterChipText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#6D9773',
-    marginLeft: 4,
+  section: {
+    marginBottom: Spacing.lg,
   },
-  filterChipTextActive: {
-    color: '#FFFFFF',
-  },
-  recommendationCard: {
-    width: width * 0.75,
-    marginRight: 12,
-  },
-  recommendationReason: {
-    fontSize: 12,
-    color: '#6D9773',
-    marginTop: 8,
-    fontStyle: 'italic',
-  },
-  venuesList: {
-    marginTop: 8,
-  },
-  venueCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-    overflow: 'hidden',
-  },
-  venueImage: {
-    width: '100%',
-    height: 180,
-    backgroundColor: '#F3F4F6',
-  },
-  noImagePlaceholder: {
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  venueInfo: {
-    padding: 12,
-  },
-  venueName: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#0C3B2E',
-    marginBottom: 4,
-  },
-  venueCategory: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#6D9773',
-    textTransform: 'uppercase',
-    marginBottom: 8,
-  },
-  venueDescription: {
-    fontSize: 14,
-    color: '#6B7280',
-    lineHeight: 20,
-    marginBottom: 12,
-  },
-  venueFooter: {
+  sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    paddingHorizontal: Spacing.md,
+    marginBottom: Spacing.md,
   },
-  ratingContainer: {
+  sectionTitle: {
+    ...Typography.h3,
+  },
+  seeAllText: {
+    ...Typography.body,
+    color: Colors.primary,
+    fontWeight: '600',
+  },
+  cardsContainer: {
+    paddingHorizontal: Spacing.md,
+    gap: Spacing.md,
+  },
+  card: {
+    width: isWeb ? 280 : width * 0.75,
+    backgroundColor: Colors.background,
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+    ...Shadows.medium,
+    position: 'relative',
+  },
+  cardImage: {
+    width: '100%',
+    height: 180,
+  },
+  cardImagePlaceholder: {
+    backgroundColor: Colors.backgroundGray,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  favoriteButton: {
+    position: 'absolute',
+    top: Spacing.md,
+    right: Spacing.md,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Shadows.small,
+  },
+  cardContent: {
+    padding: Spacing.md,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: Spacing.sm,
+  },
+  cardTitle: {
+    ...Typography.h4,
+    flex: 1,
+    marginRight: Spacing.sm,
+  },
+  ratingRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: Spacing.xs,
   },
   ratingText: {
-    fontSize: 14,
+    ...Typography.bodySmall,
     fontWeight: '600',
-    color: '#0C3B2E',
-    marginLeft: 4,
   },
-  reviewCount: {
-    fontSize: 12,
-    color: '#9CA3AF',
-    marginLeft: 4,
-  },
-  priceTag: {
-    backgroundColor: '#10B981',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-  },
-  priceText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  loadingContainer: {
-    paddingVertical: 40,
+  participantsRow: {
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: Spacing.xs,
   },
-  emptyContainer: {
-    paddingVertical: 60,
+  cardInfo: {
+    gap: Spacing.xs,
+  },
+  infoRow: {
+    flexDirection: 'row',
     alignItems: 'center',
+    gap: Spacing.xs,
   },
-  emptyText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#6B7280',
-    marginTop: 16,
+  infoText: {
+    ...Typography.bodySmall,
   },
-  emptySubtext: {
-    fontSize: 14,
-    color: '#9CA3AF',
-    marginTop: 8,
+  nearMeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.primary,
+    marginHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.md,
+    gap: Spacing.sm,
+  },
+  nearMeText: {
+    ...Typography.button,
   },
 });

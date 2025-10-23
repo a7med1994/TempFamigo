@@ -5,41 +5,37 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  RefreshControl,
-  ActivityIndicator,
+  Image,
   TextInput,
-  Modal,
-  KeyboardAvoidingView,
+  RefreshControl,
   Platform,
 } from 'react-native';
+import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import api from '../../utils/api';
 import { useStore } from '../../store/useStore';
-import { formatDistanceToNow } from 'date-fns';
+import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/AirbnbTheme';
+import api from '../../utils/api';
+
+const isWeb = Platform.OS === 'web';
 
 interface Post {
   id: string;
-  user_id: string;
   user_name: string;
-  post_type: string;
+  user_avatar?: string;
   content: string;
-  images: string[];
+  photos?: string[];
+  event_id?: string;
   likes: number;
   comment_count: number;
   created_at: string;
-  related_venue_id?: string;
-  related_event_id?: string;
+  post_type: string;
 }
 
 export default function CommunityScreen() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [showCommentModal, setShowCommentModal] = useState(false);
-  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
-  const [commentText, setCommentText] = useState('');
-  const [comments, setComments] = useState<any[]>([]);
   const { user } = useStore();
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchPosts();
@@ -48,23 +44,18 @@ export default function CommunityScreen() {
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/posts', { params: { is_public: true } });
+      const response = await api.get('/posts?is_public=true');
       setPosts(response.data);
     } catch (error) {
       console.error('Error fetching posts:', error);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await fetchPosts();
-    setRefreshing(false);
-  };
-
   const handleLike = async (postId: string) => {
-    if (!user) {
+    if (!user?.id) {
       alert('Please complete your profile first');
       return;
     }
@@ -73,264 +64,164 @@ export default function CommunityScreen() {
       await api.post(`/posts/${postId}/like`, {
         user_id: user.id,
         user_name: user.name,
-        reaction_type: 'like',
       });
-      
-      // Update local state
-      setPosts(prevPosts =>
-        prevPosts.map(post =>
-          post.id === postId
-            ? { ...post, likes: post.likes + 1 }
-            : post
-        )
-      );
+      fetchPosts();
     } catch (error) {
       console.error('Error liking post:', error);
     }
   };
 
-  const handleCommentPress = async (post: Post) => {
-    setSelectedPost(post);
-    setShowCommentModal(true);
-    
-    try {
-      const response = await api.get(`/posts/${post.id}/comments`);
-      setComments(response.data);
-    } catch (error) {
-      console.error('Error fetching comments:', error);
-    }
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchPosts();
   };
 
-  const handleSubmitComment = async () => {
-    if (!user || !commentText.trim() || !selectedPost) return;
+  const renderPost = (post: Post) => {
+    const postId = post.id || (post as any)._id;
 
-    try {
-      const response = await api.post(`/posts/${selectedPost.id}/comments`, {
-        post_id: selectedPost.id,
-        user_id: user.id,
-        user_name: user.name,
-        comment: commentText.trim(),
-      });
-
-      setComments([...comments, response.data]);
-      setCommentText('');
-      
-      // Update comment count
-      setPosts(prevPosts =>
-        prevPosts.map(post =>
-          post.id === selectedPost.id
-            ? { ...post, comment_count: post.comment_count + 1 }
-            : post
-        )
-      );
-    } catch (error) {
-      console.error('Error posting comment:', error);
-    }
-  };
-
-  const getPostTypeIcon = (type: string) => {
-    switch (type) {
-      case 'photo_share':
-        return 'camera';
-      case 'event_announcement':
-        return 'calendar';
-      case 'recommendation':
-        return 'star';
-      case 'invitation':
-        return 'mail';
-      case 'status':
-        return 'chatbubble-ellipses';
-      default:
-        return 'document-text';
-    }
-  };
-
-  const getPostTypeColor = (type: string) => {
-    switch (type) {
-      case 'photo_share':
-        return '#8B5CF6';
-      case 'event_announcement':
-        return '#3B82F6';
-      case 'recommendation':
-        return '#F59E0B';
-      case 'invitation':
-        return '#10B981';
-      case 'status':
-        return '#6B7280';
-      default:
-        return '#6D9773';
-    }
-  };
-
-  const renderPost = (post: Post) => (
-    <View key={post.id} style={styles.postCard}>
-      {/* Post Header */}
-      <View style={styles.postHeader}>
-        <View style={styles.avatarContainer}>
-          <View style={[styles.avatar, { backgroundColor: getPostTypeColor(post.post_type) }]}>
-            <Text style={styles.avatarText}>
-              {post.user_name.charAt(0)}
-            </Text>
+    return (
+      <View key={postId} style={styles.postCard}>
+        {/* Post Header */}
+        <View style={styles.postHeader}>
+          <View style={styles.userInfo}>
+            {post.user_avatar ? (
+              <Image source={{ uri: post.user_avatar }} style={styles.userAvatar} />
+            ) : (
+              <View style={styles.userAvatarPlaceholder}>
+                <Ionicons name="person" size={20} color={Colors.primary} />
+              </View>
+            )}
+            <View style={styles.userDetails}>
+              <Text style={styles.userName}>{post.user_name}</Text>
+              <Text style={styles.postTime}>
+                {new Date(post.created_at).toLocaleDateString()}
+              </Text>
+            </View>
           </View>
-          <View style={[styles.postTypeBadge, { backgroundColor: getPostTypeColor(post.post_type) }]}>
-            <Ionicons name={getPostTypeIcon(post.post_type)} size={10} color="#FFFFFF" />
-          </View>
-        </View>
-        
-        <View style={styles.postHeaderInfo}>
-          <Text style={styles.userName}>{post.user_name}</Text>
-          <Text style={styles.postTime}>
-            {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
-          </Text>
+          <TouchableOpacity>
+            <Ionicons name="ellipsis-horizontal" size={20} color={Colors.medium} />
+          </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.moreButton}>
-          <Ionicons name="ellipsis-horizontal" size={20} color="#9CA3AF" />
-        </TouchableOpacity>
-      </View>
+        {/* Post Content */}
+        <Text style={styles.postContent}>{post.content}</Text>
 
-      {/* Post Content */}
-      <Text style={styles.postContent}>{post.content}</Text>
+        {/* Post Photos */}
+        {post.photos && post.photos.length > 0 && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.photosContainer}
+          >
+            {post.photos.map((photo, index) => (
+              <Image key={index} source={{ uri: photo }} style={styles.postPhoto} />
+            ))}
+          </ScrollView>
+        )}
 
-      {/* Post Actions */}
-      <View style={styles.postActions}>
-        <View style={styles.postStats}>
-          <Text style={styles.statText}>
-            {post.likes} {post.likes === 1 ? 'like' : 'likes'}
-          </Text>
-          <Text style={styles.statText}>•</Text>
-          <Text style={styles.statText}>
-            {post.comment_count} {post.comment_count === 1 ? 'comment' : 'comments'}
-          </Text>
-        </View>
-      </View>
+        {/* Post Actions */}
+        <View style={styles.postActions}>
+          <TouchableOpacity
+            style={styles.actionButton}
+            onPress={() => handleLike(postId)}
+          >
+            <Ionicons name="heart-outline" size={22} color={Colors.dark} />
+            <Text style={styles.actionText}>{post.likes} likes</Text>
+          </TouchableOpacity>
 
-      <View style={styles.actionButtons}>
-        <TouchableOpacity
-          style={styles.actionButton}
-          onPress={() => handleLike(post.id)}
-        >
-          <Ionicons name="heart-outline" size={20} color="#6D9773" />
-          <Text style={styles.actionButtonText}>Like</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.actionButton}
-          onPress={() => handleCommentPress(post)}
-        >
-          <Ionicons name="chatbubble-outline" size={20} color="#6D9773" />
-          <Text style={styles.actionButtonText}>Comment</Text>
-        </TouchableOpacity>
-
-        {post.post_type === 'invitation' && (
           <TouchableOpacity style={styles.actionButton}>
-            <Ionicons name="checkmark-circle-outline" size={20} color="#10B981" />
-            <Text style={[styles.actionButtonText, { color: '#10B981' }]}>Join</Text>
+            <Ionicons name="chatbubble-outline" size={22} color={Colors.dark} />
+            <Text style={styles.actionText}>{post.comment_count} comments</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.actionButton}>
+            <Ionicons name="share-outline" size={22} color={Colors.dark} />
+            <Text style={styles.actionText}>Share</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Event Link */}
+        {post.event_id && (
+          <TouchableOpacity
+            style={styles.eventLink}
+            onPress={() => router.push(`/event/${post.event_id}`)}
+          >
+            <Ionicons name="calendar" size={16} color={Colors.primary} />
+            <Text style={styles.eventLinkText}>View Event Details</Text>
           </TouchableOpacity>
         )}
       </View>
-    </View>
-  );
+    );
+  };
 
   return (
     <View style={styles.container}>
       <ScrollView
         style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
       >
-        <View style={styles.content}>
-          {loading ? (
+        {/* Create Post Section */}
+        <View style={styles.createPostSection}>
+          <View style={styles.createPostContainer}>
+            {user?.avatar ? (
+              <Image source={{ uri: user.avatar }} style={styles.createPostAvatar} />
+            ) : (
+              <View style={styles.createPostAvatarPlaceholder}>
+                <Ionicons name="person" size={20} color={Colors.primary} />
+              </View>
+            )}
+            <TouchableOpacity style={styles.createPostInput}>
+              <Text style={styles.createPostPlaceholder}>
+                Share your experience...
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.createPostActions}>
+            <TouchableOpacity style={styles.createPostAction}>
+              <Ionicons name="image-outline" size={20} color={Colors.primary} />
+              <Text style={styles.createPostActionText}>Photo</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.createPostAction}>
+              <Ionicons name="calendar-outline" size={20} color={Colors.primary} />
+              <Text style={styles.createPostActionText}>Event</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.createPostAction}>
+              <Ionicons name="location-outline" size={20} color={Colors.primary} />
+              <Text style={styles.createPostActionText}>Location</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Posts Feed */}
+        <View style={styles.feedSection}>
+          {loading && posts.length === 0 ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#6D9773" />
+              <Text style={styles.loadingText}>Loading posts...</Text>
             </View>
           ) : posts.length === 0 ? (
             <View style={styles.emptyContainer}>
-              <Ionicons name="people-outline" size={64} color="#9CA3AF" />
-              <Text style={styles.emptyText}>No posts yet</Text>
-              <Text style={styles.emptySubtext}>Be the first to share!</Text>
+              <Ionicons name="people-outline" size={64} color={Colors.light} />
+              <Text style={styles.emptyTitle}>No posts yet</Text>
+              <Text style={styles.emptyText}>
+                Be the first to share your experience!
+              </Text>
             </View>
           ) : (
-            posts.map((post) => renderPost(post))
+            posts.map(renderPost)
           )}
         </View>
       </ScrollView>
 
-      {/* FAB for creating new post */}
+      {/* Floating Action Button */}
       <TouchableOpacity
         style={styles.fab}
-        onPress={() => alert('Post creation feature - Coming soon! (Will add photo upload)')}
+        onPress={() => router.push('/create-event')}
       >
-        <Ionicons name="add" size={24} color="#FFFFFF" />
+        <Ionicons name="add" size={28} color={Colors.background} />
       </TouchableOpacity>
-
-      {/* Comment Modal */}
-      <Modal
-        visible={showCommentModal}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowCommentModal(false)}
-      >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.modalContainer}
-        >
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Comments</Text>
-              <TouchableOpacity onPress={() => setShowCommentModal(false)}>
-                <Ionicons name="close" size={24} color="#1F2937" />
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView style={styles.commentsList}>
-              {comments.length === 0 ? (
-                <Text style={styles.noComments}>No comments yet. Be the first!</Text>
-              ) : (
-                comments.map((comment, index) => (
-                  <View key={index} style={styles.commentItem}>
-                    <View style={styles.commentAvatar}>
-                      <Text style={styles.commentAvatarText}>
-                        {comment.user_name.charAt(0)}
-                      </Text>
-                    </View>
-                    <View style={styles.commentContent}>
-                      <Text style={styles.commentUserName}>{comment.user_name}</Text>
-                      <Text style={styles.commentText}>{comment.comment}</Text>
-                    </View>
-                  </View>
-                ))
-              )}
-            </ScrollView>
-
-            <View style={styles.commentInputContainer}>
-              <TextInput
-                style={styles.commentInput}
-                placeholder="Write a comment..."
-                value={commentText}
-                onChangeText={setCommentText}
-                multiline
-              />
-              <TouchableOpacity
-                style={[
-                  styles.sendButton,
-                  !commentText.trim() && styles.sendButtonDisabled,
-                ]}
-                onPress={handleSubmitComment}
-                disabled={!commentText.trim()}
-              >
-                <Ionicons
-                  name="send"
-                  size={20}
-                  color={commentText.trim() ? '#FFFFFF' : '#9CA3AF'}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </KeyboardAvoidingView>
-      </Modal>
     </View>
   );
 }
@@ -338,241 +229,183 @@ export default function CommunityScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: Colors.backgroundGray,
   },
   scrollView: {
     flex: 1,
   },
-  content: {
-    padding: 16,
+  scrollContent: {
+    paddingBottom: 80,
   },
-  loadingContainer: {
-    paddingVertical: 60,
-    alignItems: 'center',
+  createPostSection: {
+    backgroundColor: Colors.background,
+    padding: Spacing.md,
+    marginBottom: Spacing.sm,
+    ...Shadows.small,
   },
-  emptyContainer: {
-    paddingVertical: 80,
-    alignItems: 'center',
-  },
-  emptyText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#6B7280',
-    marginTop: 16,
-  },
-  emptySubtext: {
-    fontSize: 14,
-    color: '#9CA3AF',
-    marginTop: 8,
-  },
-  postCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  postHeader: {
+  createPostContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 12,
+    gap: Spacing.md,
+    marginBottom: Spacing.md,
   },
-  avatarContainer: {
-    position: 'relative',
-  },
-  avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  avatarText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  postTypeBadge: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
-  },
-  postHeaderInfo: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  userName: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#0C3B2E',
-  },
-  postTime: {
-    fontSize: 12,
-    color: '#9CA3AF',
-    marginTop: 2,
-  },
-  moreButton: {
-    padding: 4,
-  },
-  postContent: {
-    fontSize: 15,
-    lineHeight: 22,
-    color: '#374151',
-    marginBottom: 12,
-  },
-  postActions: {
-    paddingVertical: 8,
-    borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
-  },
-  postStats: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  statText: {
-    fontSize: 13,
-    color: '#6B7280',
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
-    gap: 8,
-  },
-  actionButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 8,
-    gap: 6,
-  },
-  actionButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#6D9773',
-  },
-  fab: {
-    position: 'absolute',
-    bottom: 24,
-    right: 24,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#6D9773',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    height: '80%',
-    paddingTop: 16,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#0C3B2E',
-  },
-  commentsList: {
-    flex: 1,
-    padding: 16,
-  },
-  noComments: {
-    textAlign: 'center',
-    color: '#9CA3AF',
-    paddingVertical: 32,
-  },
-  commentItem: {
-    flexDirection: 'row',
-    marginBottom: 16,
-  },
-  commentAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#6D9773',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  commentAvatarText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  commentContent: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  commentUserName: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#0C3B2E',
-    marginBottom: 4,
-  },
-  commentText: {
-    fontSize: 14,
-    color: '#374151',
-    lineHeight: 20,
-  },
-  commentInputContainer: {
-    flexDirection: 'row',
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
-    alignItems: 'center',
-    gap: 12,
-  },
-  commentInput: {
-    flex: 1,
-    backgroundColor: '#F3F4F6',
-    borderRadius: 24,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    fontSize: 14,
-    maxHeight: 100,
-  },
-  sendButton: {
+  createPostAvatar: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#6D9773',
+  },
+  createPostAvatarPlaceholder: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.backgroundGray,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  sendButtonDisabled: {
-    backgroundColor: '#E5E7EB',
+  createPostInput: {
+    flex: 1,
+    backgroundColor: Colors.backgroundGray,
+    borderRadius: BorderRadius.round,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.light,
+  },
+  createPostPlaceholder: {
+    ...Typography.body,
+    color: Colors.medium,
+  },
+  createPostActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  createPostAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+  },
+  createPostActionText: {
+    ...Typography.bodySmall,
+    color: Colors.primary,
+    fontWeight: '600',
+  },
+  feedSection: {
+    gap: Spacing.sm,
+  },
+  postCard: {
+    backgroundColor: Colors.background,
+    padding: Spacing.md,
+    marginBottom: Spacing.sm,
+    ...Shadows.small,
+  },
+  postHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+  },
+  userInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+  },
+  userAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+  },
+  userAvatarPlaceholder: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.backgroundGray,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  userDetails: {
+    gap: Spacing.xs,
+  },
+  userName: {
+    ...Typography.body,
+    fontWeight: '600',
+  },
+  postTime: {
+    ...Typography.caption,
+  },
+  postContent: {
+    ...Typography.body,
+    marginBottom: Spacing.md,
+    lineHeight: 22,
+  },
+  photosContainer: {
+    gap: Spacing.sm,
+    marginBottom: Spacing.md,
+  },
+  postPhoto: {
+    width: 200,
+    height: 200,
+    borderRadius: BorderRadius.md,
+  },
+  postActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingTop: Spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: Colors.light,
+  },
+  actionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+  },
+  actionText: {
+    ...Typography.bodySmall,
+  },
+  eventLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    marginTop: Spacing.md,
+    paddingTop: Spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: Colors.light,
+  },
+  eventLinkText: {
+    ...Typography.bodySmall,
+    color: Colors.primary,
+    fontWeight: '600',
+  },
+  loadingContainer: {
+    padding: Spacing.xl,
+    alignItems: 'center',
+  },
+  loadingText: {
+    ...Typography.body,
+    color: Colors.medium,
+  },
+  emptyContainer: {
+    padding: Spacing.xxl,
+    alignItems: 'center',
+  },
+  emptyTitle: {
+    ...Typography.h3,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.sm,
+  },
+  emptyText: {
+    ...Typography.bodySmall,
+    textAlign: 'center',
+  },
+  fab: {
+    position: 'absolute',
+    right: Spacing.md,
+    bottom: Spacing.md,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: Colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Shadows.large,
   },
 });
