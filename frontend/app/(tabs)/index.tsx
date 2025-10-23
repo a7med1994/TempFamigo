@@ -307,16 +307,7 @@ export default function DiscoverScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Nearby Activities Carousel */}
-        <View style={styles.carouselSection}>
-          <Text style={styles.carouselTitle}>Nearby Activities</Text>
-          <NetflixCarousel autoScroll={true}>
-            {venues.slice(0, 5).map((venue, index) => renderCarouselItem(venue, index, 'venue'))}
-            {events.slice(0, 3).map((event, index) => renderCarouselItem(event, index, 'event'))}
-          </NetflixCarousel>
-        </View>
-
-        {/* Categories */}
+        {/* Categories - Moved under search */}
         <View style={styles.categoriesSection}>
           <ScrollView
             horizontal
@@ -350,6 +341,15 @@ export default function DiscoverScreen() {
               </TouchableOpacity>
             ))}
           </ScrollView>
+        </View>
+
+        {/* Nearby Activities Carousel */}
+        <View style={styles.carouselSection}>
+          <Text style={styles.carouselTitle}>Nearby Activities</Text>
+          <NetflixCarousel autoScroll={true}>
+            {venues.slice(0, 5).map((venue, index) => renderCarouselItem(venue, index, 'venue'))}
+            {events.slice(0, 3).map((event, index) => renderCarouselItem(event, index, 'event'))}
+          </NetflixCarousel>
         </View>
 
         {/* Hero Section */}
