@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -9,11 +9,13 @@ import {
   TextInput,
   Platform,
   Dimensions,
+  Modal,
+  Animated,
 } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useStore } from '../../store/useStore';
-import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/AirbnbTheme';
+import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../constants/NewTheme';
 import { CATEGORIES, QUICK_FILTERS } from '../../constants/Categories';
 import api from '../../utils/api';
 
@@ -49,6 +51,8 @@ export default function DiscoverScreen() {
   const [venues, setVenues] = useState<Venue[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(false);
+  const [searchExpanded, setSearchExpanded] = useState(false);
+  const scrollX = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     fetchData();
@@ -106,6 +110,56 @@ export default function DiscoverScreen() {
     }
   };
 
+  const renderCarouselItem = (item: Venue | Event, index: number, type: string) => {
+    const itemId = item.id || (item as any)._id;
+    const favorited = isFavorite(itemId);
+    const isVenue = 'name' in item;
+
+    return (
+      <TouchableOpacity
+        key={itemId}
+        style={styles.carouselCard}
+        onPress={() => router.push(isVenue ? `/venue/${itemId}` : `/event/${itemId}`)}
+        activeOpacity={0.8}
+      >
+        {(isVenue ? item.image : (item as Event).photos?.[0]) ? (
+          <Image
+            source={{ uri: isVenue ? item.image : (item as Event).photos![0] }}
+            style={styles.carouselImage}
+          />
+        ) : (
+          <View style={[styles.carouselImage, styles.carouselImagePlaceholder]}>
+            <Ionicons name={isVenue ? 'location' : 'calendar'} size={40} color={Colors.textLight} />
+          </View>
+        )}
+        
+        <TouchableOpacity
+          style={styles.carouselFavoriteButton}
+          onPress={(e) => {
+            e.stopPropagation();
+            handleToggleFavorite(item, type);
+          }}
+        >
+          <Ionicons
+            name={favorited ? 'heart' : 'heart-outline'}
+            size={20}
+            color={favorited ? Colors.accent2 : Colors.backgroundCard}
+          />
+        </TouchableOpacity>
+
+        <View style={styles.carouselContent}>
+          <Text style={styles.carouselTitle} numberOfLines={1}>
+            {isVenue ? item.name : (item as Event).title}
+          </Text>
+          <View style={styles.carouselInfo}>
+            <Ionicons name="location-outline" size={12} color={Colors.textLight} />
+            <Text style={styles.carouselLocation}>{item.location.city}</Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
   const renderVenueCard = (venue: Venue) => {
     const itemId = venue.id || (venue as any)._id;
     const favorited = isFavorite(itemId);
@@ -121,11 +175,10 @@ export default function DiscoverScreen() {
           <Image source={{ uri: venue.image }} style={styles.cardImage} />
         ) : (
           <View style={[styles.cardImage, styles.cardImagePlaceholder]}>
-            <Ionicons name="location" size={40} color={Colors.light} />
+            <Ionicons name="location" size={40} color={Colors.textLight} />
           </View>
         )}
         
-        {/* Favorite Heart Button */}
         <TouchableOpacity
           style={styles.favoriteButton}
           onPress={(e) => {
@@ -136,7 +189,7 @@ export default function DiscoverScreen() {
           <Ionicons
             name={favorited ? 'heart' : 'heart-outline'}
             size={24}
-            color={favorited ? Colors.primary : Colors.background}
+            color={favorited ? Colors.accent2 : Colors.backgroundCard}
           />
         </TouchableOpacity>
 
@@ -146,17 +199,17 @@ export default function DiscoverScreen() {
               {venue.name}
             </Text>
             <View style={styles.ratingRow}>
-              <Ionicons name="star" size={14} color="#FFBA00" />
+              <Ionicons name="star" size={14} color={Colors.accent1} />
               <Text style={styles.ratingText}>{venue.rating.toFixed(1)}</Text>
             </View>
           </View>
           <View style={styles.cardInfo}>
             <View style={styles.infoRow}>
-              <Ionicons name="location-outline" size={14} color={Colors.medium} />
+              <Ionicons name="location-outline" size={14} color={Colors.textLight} />
               <Text style={styles.infoText}>{venue.location.city}</Text>
             </View>
             <View style={styles.infoRow}>
-              <Ionicons name="pricetag-outline" size={14} color={Colors.medium} />
+              <Ionicons name="pricetag-outline" size={14} color={Colors.textLight} />
               <Text style={styles.infoText}>{venue.price_type}</Text>
             </View>
           </View>
@@ -180,11 +233,10 @@ export default function DiscoverScreen() {
           <Image source={{ uri: event.photos[0] }} style={styles.cardImage} />
         ) : (
           <View style={[styles.cardImage, styles.cardImagePlaceholder]}>
-            <Ionicons name="calendar" size={40} color={Colors.light} />
+            <Ionicons name="calendar" size={40} color={Colors.textLight} />
           </View>
         )}
         
-        {/* Favorite Heart Button */}
         <TouchableOpacity
           style={styles.favoriteButton}
           onPress={(e) => {
@@ -195,7 +247,7 @@ export default function DiscoverScreen() {
           <Ionicons
             name={favorited ? 'heart' : 'heart-outline'}
             size={24}
-            color={favorited ? Colors.primary : Colors.background}
+            color={favorited ? Colors.accent2 : Colors.backgroundCard}
           />
         </TouchableOpacity>
 
@@ -205,7 +257,7 @@ export default function DiscoverScreen() {
               {event.title}
             </Text>
             <View style={styles.participantsRow}>
-              <Ionicons name="people" size={14} color={Colors.medium} />
+              <Ionicons name="people" size={14} color={Colors.textLight} />
               <Text style={styles.infoText}>
                 {event.current_participants}/{event.max_participants}
               </Text>
@@ -213,11 +265,11 @@ export default function DiscoverScreen() {
           </View>
           <View style={styles.cardInfo}>
             <View style={styles.infoRow}>
-              <Ionicons name="location-outline" size={14} color={Colors.medium} />
+              <Ionicons name="location-outline" size={14} color={Colors.textLight} />
               <Text style={styles.infoText}>{event.location.city}</Text>
             </View>
             <View style={styles.infoRow}>
-              <Ionicons name="calendar-outline" size={14} color={Colors.medium} />
+              <Ionicons name="calendar-outline" size={14} color={Colors.textLight} />
               <Text style={styles.infoText}>
                 {new Date(event.date).toLocaleDateString()}
               </Text>
@@ -237,16 +289,33 @@ export default function DiscoverScreen() {
       >
         {/* Search Bar */}
         <View style={styles.searchContainer}>
-          <View style={styles.searchBar}>
-            <Ionicons name="search" size={20} color={Colors.medium} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Where do you want to go?"
-              placeholderTextColor={Colors.medium}
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
-          </View>
+          <TouchableOpacity 
+            style={styles.searchBar}
+            onPress={() => setSearchExpanded(true)}
+          >
+            <Ionicons name="search" size={20} color={Colors.textLight} />
+            <Text style={styles.searchPlaceholder}>
+              Discover fun activities for your kids nearby
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Nearby Activities Carousel */}
+        <View style={styles.carouselSection}>
+          <Text style={styles.carouselTitle}>Nearby Activities</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.carouselContainer}
+            onScroll={Animated.event(
+              [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+              { useNativeDriver: false }
+            )}
+            scrollEventThrottle={16}
+          >
+            {venues.slice(0, 5).map((venue, index) => renderCarouselItem(venue, index, 'venue'))}
+            {events.slice(0, 3).map((event, index) => renderCarouselItem(event, index, 'event'))}
+          </ScrollView>
         </View>
 
         {/* Categories */}
@@ -269,7 +338,7 @@ export default function DiscoverScreen() {
                   name={cat.icon as any}
                   size={20}
                   color={
-                    selectedCategory === cat.id ? Colors.background : Colors.dark
+                    selectedCategory === cat.id ? Colors.background : Colors.textDark
                   }
                 />
                 <Text
@@ -302,7 +371,7 @@ export default function DiscoverScreen() {
           >
             {QUICK_FILTERS.map((filter) => (
               <TouchableOpacity key={filter.id} style={styles.filterChip}>
-                <Ionicons name={filter.icon as any} size={16} color={Colors.dark} />
+                <Ionicons name={filter.icon as any} size={16} color={Colors.textDark} />
                 <Text style={styles.filterText}>{filter.label}</Text>
               </TouchableOpacity>
             ))}
@@ -352,6 +421,38 @@ export default function DiscoverScreen() {
           <Text style={styles.nearMeText}>Explore Near Me</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      {/* Full Page Search Modal */}
+      <Modal
+        visible={searchExpanded}
+        animationType="slide"
+        onRequestClose={() => setSearchExpanded(false)}
+      >
+        <View style={styles.searchModal}>
+          <View style={styles.searchModalHeader}>
+            <TouchableOpacity
+              onPress={() => setSearchExpanded(false)}
+              style={styles.backButton}
+            >
+              <Ionicons name="arrow-back" size={24} color={Colors.textDark} />
+            </TouchableOpacity>
+            <View style={styles.searchModalBar}>
+              <Ionicons name="search" size={20} color={Colors.textLight} />
+              <TextInput
+                style={styles.searchModalInput}
+                placeholder="Search activities, venues, events..."
+                placeholderTextColor={Colors.textLight}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                autoFocus
+              />
+            </View>
+          </View>
+          <ScrollView style={styles.searchResults}>
+            <Text style={styles.searchResultsText}>Search results will appear here</Text>
+          </ScrollView>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -369,28 +470,82 @@ const styles = StyleSheet.create({
   },
   searchContainer: {
     padding: Spacing.md,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.backgroundCard,
   },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.backgroundGray,
+    backgroundColor: Colors.background,
     borderRadius: BorderRadius.round,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.md,
     gap: Spacing.sm,
     borderWidth: 1,
-    borderColor: Colors.light,
+    borderColor: Colors.border,
   },
-  searchInput: {
+  searchPlaceholder: {
     flex: 1,
-    fontSize: 16,
-    color: Colors.dark,
-    ...Platform.select({
-      web: {
-        outlineStyle: 'none',
-      },
-    }),
+    ...Typography.body,
+    color: Colors.textLight,
+  },
+  carouselSection: {
+    marginBottom: Spacing.md,
+    backgroundColor: Colors.backgroundCard,
+    paddingVertical: Spacing.md,
+  },
+  carouselTitle: {
+    ...Typography.h3,
+    paddingHorizontal: Spacing.md,
+    marginBottom: Spacing.md,
+  },
+  carouselContainer: {
+    paddingHorizontal: Spacing.md,
+    gap: Spacing.md,
+  },
+  carouselCard: {
+    width: 160,
+    backgroundColor: Colors.backgroundCard,
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+    ...Shadows.medium,
+    position: 'relative',
+  },
+  carouselImage: {
+    width: '100%',
+    height: 120,
+  },
+  carouselImagePlaceholder: {
+    backgroundColor: Colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  carouselFavoriteButton: {
+    position: 'absolute',
+    top: Spacing.sm,
+    right: Spacing.sm,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Shadows.small,
+  },
+  carouselContent: {
+    padding: Spacing.sm,
+  },
+  carouselTitle: {
+    ...Typography.body,
+    fontWeight: '600',
+    marginBottom: Spacing.xs,
+  },
+  carouselInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+  },
+  carouselLocation: {
+    ...Typography.caption,
   },
   categoriesSection: {
     marginBottom: Spacing.md,
@@ -405,10 +560,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.round,
-    backgroundColor: Colors.backgroundGray,
+    backgroundColor: Colors.backgroundCard,
     gap: Spacing.xs,
     borderWidth: 1,
-    borderColor: Colors.light,
+    borderColor: Colors.border,
   },
   categoryChipActive: {
     backgroundColor: Colors.primary,
@@ -431,7 +586,7 @@ const styles = StyleSheet.create({
   },
   heroSubtitle: {
     ...Typography.body,
-    color: Colors.medium,
+    color: Colors.textMedium,
   },
   filtersSection: {
     marginBottom: Spacing.lg,
@@ -446,10 +601,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.sm,
     borderRadius: BorderRadius.round,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.backgroundCard,
     gap: Spacing.xs,
     borderWidth: 1,
-    borderColor: Colors.light,
+    borderColor: Colors.border,
   },
   filterText: {
     ...Typography.bodySmall,
@@ -469,7 +624,7 @@ const styles = StyleSheet.create({
   },
   seeAllText: {
     ...Typography.body,
-    color: Colors.primary,
+    color: Colors.secondary,
     fontWeight: '600',
   },
   cardsContainer: {
@@ -478,7 +633,7 @@ const styles = StyleSheet.create({
   },
   card: {
     width: isWeb ? 280 : width * 0.75,
-    backgroundColor: Colors.background,
+    backgroundColor: Colors.backgroundCard,
     borderRadius: BorderRadius.lg,
     overflow: 'hidden',
     ...Shadows.medium,
@@ -489,7 +644,7 @@ const styles = StyleSheet.create({
     height: 180,
   },
   cardImagePlaceholder: {
-    backgroundColor: Colors.backgroundGray,
+    backgroundColor: Colors.background,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -556,5 +711,53 @@ const styles = StyleSheet.create({
   },
   nearMeText: {
     ...Typography.button,
+  },
+  searchModal: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+  searchModalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Spacing.md,
+    backgroundColor: Colors.backgroundCard,
+    gap: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  backButton: {
+    padding: Spacing.xs,
+  },
+  searchModalBar: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.background,
+    borderRadius: BorderRadius.round,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    gap: Spacing.sm,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  searchModalInput: {
+    flex: 1,
+    fontSize: 16,
+    color: Colors.textDark,
+    ...Platform.select({
+      web: {
+        outlineStyle: 'none',
+      },
+    }),
+  },
+  searchResults: {
+    flex: 1,
+    padding: Spacing.md,
+  },
+  searchResultsText: {
+    ...Typography.body,
+    color: Colors.textLight,
+    textAlign: 'center',
+    marginTop: Spacing.xl,
   },
 });
