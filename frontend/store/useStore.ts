@@ -63,13 +63,19 @@ export const useStore = create<AppState>((set, get) => ({
   },
 }));
 
-// Load user on app start
+// Load user and favorites on app start
 export const loadUser = async () => {
   try {
     const userData = await AsyncStorage.getItem('famigo_user');
     if (userData) {
       const user = JSON.parse(userData);
       useStore.getState().setUser(user);
+    }
+    
+    const favoritesData = await AsyncStorage.getItem('famigo_favorites');
+    if (favoritesData) {
+      const favorites = JSON.parse(favoritesData);
+      useStore.getState().setFavorites(favorites);
     }
   } catch (error) {
     console.error('Error loading user:', error);
