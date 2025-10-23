@@ -215,15 +215,68 @@ export default function BrowseCategoriesScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity 
+          onPress={() => selectedCategory ? handleBackFromList() : router.back()} 
+          style={styles.backButton}
+        >
           <Ionicons name="arrow-back" size={24} color={Colors.backgroundCard} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Browse Categories</Text>
+        <Text style={styles.headerTitle}>
+          {selectedCategory 
+            ? CATEGORIES.find(c => c.id === selectedCategory)?.label || 'Category' 
+            : 'Browse Categories'}
+        </Text>
         <View style={styles.placeholder} />
       </View>
 
-      {/* Stats Summary */}
-      <View style={styles.statsContainer}>
+      {selectedCategory ? (
+        /* List View */
+        <ScrollView style={styles.listContainer} contentContainerStyle={styles.listContent}>
+          {filteredItems.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Ionicons name="search-outline" size={64} color={Colors.textLight} />
+              <Text style={styles.emptyText}>No items found in this category</Text>
+            </View>
+          ) : (
+            filteredItems.map((item, index) => (
+              <TouchableOpacity
+                key={`${item.itemType}-${item.id || item._id}-${index}`}
+                style={styles.listItem}
+                onPress={() => {
+                  if (item.itemType === 'venue') {
+                    router.push(`/venue/${item.id || item._id}`);
+                  } else {
+                    router.push(`/event/${item.id || item._id}`);
+                  }
+                }}
+              >
+                <View style={styles.listItemIconContainer}>
+                  <Ionicons 
+                    name={item.itemType === 'venue' ? 'business' : 'calendar'} 
+                    size={24} 
+                    color={Colors.primary} 
+                  />
+                </View>
+                <View style={styles.listItemContent}>
+                  <Text style={styles.listItemTitle}>
+                    {item.itemType === 'venue' ? item.name : item.title}
+                  </Text>
+                  <Text style={styles.listItemSubtitle}>
+                    {item.itemType === 'venue' ? item.category : new Date(item.date).toLocaleDateString()}
+                  </Text>
+                  {item.location?.address && (
+                    <Text style={styles.listItemAddress}>{item.location.address}</Text>
+                  )}
+                </View>
+                <Ionicons name="chevron-forward" size={20} color={Colors.textLight} />
+              </TouchableOpacity>
+            ))
+          )}
+        </ScrollView>
+      ) : (
+        <>
+          {/* Stats Summary */}
+          <View style={styles.statsContainer}>
         <View style={styles.statCard}>
           <Text style={styles.statNumber}>{venues.length}</Text>
           <Text style={styles.statLabel}>Venues</Text>
