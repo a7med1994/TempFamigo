@@ -3,6 +3,7 @@ import { Stack } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { loadUser } from '../store/useStore';
 import { DrawerProvider } from '../contexts/DrawerContext';
+import { Colors } from '../constants/AirbnbTheme';
 
 export default function RootLayout() {
   useEffect(() => {
@@ -24,12 +25,19 @@ export default function RootLayout() {
             }} 
           />
           <Stack.Screen 
+            name="favorites" 
+            options={{ 
+              headerShown: false,
+              presentation: 'card',
+            }} 
+          />
+          <Stack.Screen 
             name="venue/[id]" 
             options={{ 
               headerShown: true, 
               title: 'Venue Details',
               headerStyle: {
-                backgroundColor: '#0C3B2E',
+                backgroundColor: Colors.primary,
               },
               headerTintColor: '#FFFFFF',
               headerTitleStyle: {
@@ -40,15 +48,7 @@ export default function RootLayout() {
           <Stack.Screen 
             name="event/[id]" 
             options={{ 
-              headerShown: true, 
-              title: 'Event Details',
-              headerStyle: {
-                backgroundColor: '#0C3B2E',
-              },
-              headerTintColor: '#FFFFFF',
-              headerTitleStyle: {
-                fontWeight: '700',
-              },
+              headerShown: false,
             }} 
           />
           <Stack.Screen 
@@ -57,7 +57,7 @@ export default function RootLayout() {
               headerShown: true, 
               title: 'Create Event',
               headerStyle: {
-                backgroundColor: '#0C3B2E',
+                backgroundColor: Colors.primary,
               },
               headerTintColor: '#FFFFFF',
               headerTitleStyle: {
@@ -71,7 +71,7 @@ export default function RootLayout() {
               headerShown: true, 
               title: 'Near Me',
               headerStyle: {
-                backgroundColor: '#0C3B2E',
+                backgroundColor: Colors.primary,
               },
               headerTintColor: '#FFFFFF',
               headerTitleStyle: {

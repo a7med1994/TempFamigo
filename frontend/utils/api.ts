@@ -1,11 +1,11 @@
 import axios from 'axios';
 import Constants from 'expo-constants';
 
-const EXPO_PUBLIC_BACKEND_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_BACKEND_URL || process.env.EXPO_PUBLIC_BACKEND_URL || '';
+const API_URL = process.env.EXPO_PUBLIC_BACKEND_URL || 'http://localhost:8001';
 
 const api = axios.create({
-  baseURL: `${EXPO_PUBLIC_BACKEND_URL}/api`,
-  timeout: 30000,
+  baseURL: `${API_URL}/api`,
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
