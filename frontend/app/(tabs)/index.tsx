@@ -354,10 +354,27 @@ export default function DiscoverScreen() {
 
         {/* Hero Section */}
         <View style={styles.heroSection}>
-          <Text style={styles.heroTitle}>Discover Amazing Places</Text>
-          <Text style={styles.heroSubtitle}>
-            Find the perfect activities for your family
-          </Text>
+          <View style={styles.heroHeader}>
+            <View style={styles.heroTextContainer}>
+              <Text style={styles.heroTitle}>Discover Amazing Places</Text>
+              <Text style={styles.heroSubtitle}>
+                Find the perfect activities for your family
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={styles.filterButton}
+              onPress={() => setShowFilterModal(true)}
+            >
+              <Ionicons name="options-outline" size={24} color={Colors.textDark} />
+              {(activeFilters.categories.length + activeFilters.ageRanges.length + activeFilters.priceTypes.length) > 0 && (
+                <View style={styles.filterBadge}>
+                  <Text style={styles.filterBadgeText}>
+                    {activeFilters.categories.length + activeFilters.ageRanges.length + activeFilters.priceTypes.length}
+                  </Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Quick Filters */}
