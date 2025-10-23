@@ -468,6 +468,17 @@ export default function DiscoverScreen() {
           </ScrollView>
         </View>
       </Modal>
+
+      {/* Filter Modal */}
+      <FilterModal
+        visible={showFilterModal}
+        onClose={() => setShowFilterModal(false)}
+        onApply={(filters) => {
+          setActiveFilters(filters);
+          setShowFilterModal(false);
+        }}
+        initialFilters={activeFilters}
+      />
     </View>
   );
 }
