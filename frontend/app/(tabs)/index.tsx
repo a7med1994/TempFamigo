@@ -633,7 +633,8 @@ const styles = StyleSheet.create({
     ...Typography.caption,
   },
   categoriesSection: {
-    marginBottom: Spacing.md,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.lg,
   },
   categoriesContent: {
     paddingHorizontal: Spacing.md,
