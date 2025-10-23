@@ -614,10 +614,13 @@ const styles = StyleSheet.create({
   },
   categoriesSection: {
     marginBottom: Spacing.md,
-    paddingHorizontal: Spacing.md,
   },
   categoriesContent: {
+    paddingHorizontal: Spacing.md,
     gap: Spacing.sm,
+  },
+  horizontalScroll: {
+    flexGrow: 0,
   },
   categoryChip: {
     flexDirection: 'row',
