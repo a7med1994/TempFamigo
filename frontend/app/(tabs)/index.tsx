@@ -432,7 +432,7 @@ export default function DiscoverScreen() {
             contentContainerStyle={styles.cardsContainer}
             style={styles.horizontalScroll}
           >
-            {venues.slice(0, 10).map(renderVenueCard)}
+            {filteredVenues.slice(0, 10).map(renderVenueCard)}
           </ScrollView>
         </View>
 
@@ -450,7 +450,7 @@ export default function DiscoverScreen() {
             contentContainerStyle={styles.cardsContainer}
             style={styles.horizontalScroll}
           >
-            {events.slice(0, 10).map(renderEventCard)}
+            {filteredEvents.slice(0, 10).map(renderEventCard)}
           </ScrollView>
         </View>
 
