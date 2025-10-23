@@ -3,6 +3,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity, View, Text, StyleSheet, Image } from 'react-native';
 import { useStore } from '../../store/useStore';
 import { useDrawer } from '../../contexts/DrawerContext';
+import { Colors } from '../../constants/AirbnbTheme';
 
 export default function TabsLayout() {
   const { user } = useStore();
@@ -22,16 +23,6 @@ export default function TabsLayout() {
   const HeaderRight = () => (
     <View style={styles.headerRight}>
       <TouchableOpacity
-        style={styles.notificationButton}
-        onPress={() => alert('Notifications - Coming soon!')}
-      >
-        <Ionicons name="notifications" size={24} color="#FFFFFF" />
-        <View style={styles.notificationBadge}>
-          <Text style={styles.badgeText}>3</Text>
-        </View>
-      </TouchableOpacity>
-      
-      <TouchableOpacity
         style={styles.profileButton}
         onPress={() => router.push('/(tabs)/profile')}
       >
@@ -39,7 +30,7 @@ export default function TabsLayout() {
           <Image source={{ uri: user.avatar }} style={styles.headerAvatar} />
         ) : (
           <View style={styles.headerAvatarPlaceholder}>
-            <Ionicons name="person" size={20} color="#6D9773" />
+            <Ionicons name="person" size={20} color={Colors.primary} />
           </View>
         )}
       </TouchableOpacity>
@@ -49,22 +40,23 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#6D9773',
-        tabBarInactiveTintColor: '#9CA3AF',
+        tabBarActiveTintColor: Colors.primary,
+        tabBarInactiveTintColor: Colors.medium,
         tabBarStyle: {
-          backgroundColor: '#FFFFFF',
+          backgroundColor: Colors.background,
           borderTopWidth: 1,
-          borderTopColor: '#E5E7EB',
+          borderTopColor: Colors.light,
           height: 60,
           paddingBottom: 8,
           paddingTop: 8,
         },
         headerStyle: {
-          backgroundColor: '#0C3B2E',
+          backgroundColor: Colors.primary,
         },
         headerTintColor: '#FFFFFF',
         headerTitleStyle: {
           fontWeight: '700',
+          fontSize: 18,
         },
         headerLeft: () => <HeaderLeft />,
         headerRight: () => <HeaderRight />,
@@ -75,7 +67,7 @@ export default function TabsLayout() {
         options={{
           title: 'Discover',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="compass" size={size} color={color} />
+            <Ionicons name="search" size={size} color={color} />
           ),
         }}
       />
@@ -84,7 +76,7 @@ export default function TabsLayout() {
         options={{
           title: 'Events',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar" size={size} color={color} />
+            <Ionicons name="calendar-outline" size={size} color={color} />
           ),
         }}
       />
@@ -93,7 +85,7 @@ export default function TabsLayout() {
         options={{
           title: 'Community',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="people" size={size} color={color} />
+            <Ionicons name="people-outline" size={size} color={color} />
           ),
         }}
       />
@@ -102,7 +94,7 @@ export default function TabsLayout() {
         options={{
           title: 'Profile',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" size={size} color={color} />
+            <Ionicons name="person-outline" size={size} color={color} />
           ),
         }}
       />
@@ -124,26 +116,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingRight: 16,
     gap: 12,
-  },
-  notificationButton: {
-    position: 'relative',
-    padding: 4,
-  },
-  notificationBadge: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    backgroundColor: '#FFBA00',
-    borderRadius: 10,
-    width: 18,
-    height: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  badgeText: {
-    color: '#0C3B2E',
-    fontSize: 10,
-    fontWeight: '700',
   },
   profileButton: {
     padding: 4,

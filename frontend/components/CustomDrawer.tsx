@@ -10,6 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useStore } from '../store/useStore';
+import { Colors, Typography, Spacing, BorderRadius } from '../constants/AirbnbTheme';
 
 interface CustomDrawerProps {
   onClose: () => void;
@@ -19,10 +20,10 @@ export default function CustomDrawer({ onClose }: CustomDrawerProps) {
   const { user } = useStore();
 
   const menuItems = [
-    { id: 'discover', label: 'Discover', icon: 'compass', route: '/(tabs)' },
-    { id: 'events', label: 'Events', icon: 'calendar', route: '/(tabs)/events' },
-    { id: 'community', label: 'Community', icon: 'people', route: '/(tabs)/community' },
-    { id: 'profile', label: 'Profile', icon: 'person', route: '/(tabs)/profile' },
+    { id: 'discover', label: 'Discover', icon: 'search', route: '/(tabs)' },
+    { id: 'events', label: 'Events', icon: 'calendar-outline', route: '/(tabs)/events' },
+    { id: 'community', label: 'Community', icon: 'people-outline', route: '/(tabs)/community' },
+    { id: 'profile', label: 'Profile', icon: 'person-outline', route: '/(tabs)/profile' },
   ];
 
   const handleNavigate = (route: string) => {
@@ -42,14 +43,14 @@ export default function CustomDrawer({ onClose }: CustomDrawerProps) {
             <Image source={{ uri: user.avatar }} style={styles.avatar} />
           ) : (
             <View style={styles.avatarPlaceholder}>
-              <Ionicons name="person" size={40} color="#6D9773" />
+              <Ionicons name="person" size={40} color={Colors.primary} />
             </View>
           )}
         </TouchableOpacity>
         <Text style={styles.userName}>{user?.name || 'Guest'}</Text>
         {user?.location?.city && (
           <View style={styles.locationRow}>
-            <Ionicons name="location" size={14} color="#BB8A52" />
+            <Ionicons name="location" size={14} color={Colors.medium} />
             <Text style={styles.userLocation}>{user.location.city}</Text>
           </View>
         )}
@@ -63,7 +64,7 @@ export default function CustomDrawer({ onClose }: CustomDrawerProps) {
             style={styles.menuItem}
             onPress={() => handleNavigate(item.route)}
           >
-            <Ionicons name={item.icon as any} size={24} color="#BB8A52" />
+            <Ionicons name={item.icon as any} size={24} color={Colors.dark} />
             <Text style={styles.menuLabel}>{item.label}</Text>
           </TouchableOpacity>
         ))}
@@ -71,8 +72,8 @@ export default function CustomDrawer({ onClose }: CustomDrawerProps) {
 
       {/* Footer */}
       <View style={styles.footer}>
-        <Text style={styles.appName}>🌳 Famigo</Text>
-        <Text style={styles.tagline}>Discover. Connect. Play.</Text>
+        <Text style={styles.appName}>Famigo</Text>
+        <Text style={styles.tagline}>Find Your Next Adventure</Text>
       </View>
     </ScrollView>
   );
@@ -81,20 +82,20 @@ export default function CustomDrawer({ onClose }: CustomDrawerProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.background,
   },
   content: {
     flex: 1,
-    padding: 20,
+    padding: Spacing.lg,
   },
   profileSection: {
     alignItems: 'center',
-    paddingVertical: 24,
+    paddingVertical: Spacing.xl,
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: Colors.light,
   },
   avatarContainer: {
-    marginBottom: 12,
+    marginBottom: Spacing.md,
   },
   avatar: {
     width: 80,
@@ -105,58 +106,50 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#E8F4EC',
+    backgroundColor: Colors.backgroundGray,
     justifyContent: 'center',
     alignItems: 'center',
   },
   userName: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#0C3B2E',
-    marginBottom: 4,
+    ...Typography.h3,
+    marginBottom: Spacing.xs,
   },
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: Spacing.xs,
   },
   userLocation: {
-    fontSize: 14,
-    color: '#6B7280',
+    ...Typography.bodySmall,
   },
   menuSection: {
     flex: 1,
-    paddingTop: 24,
+    paddingTop: Spacing.lg,
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    marginBottom: 8,
-    gap: 16,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.sm,
+    gap: Spacing.md,
   },
   menuLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#0C3B2E',
+    ...Typography.body,
   },
   footer: {
-    paddingTop: 24,
+    paddingTop: Spacing.lg,
     borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
+    borderTopColor: Colors.light,
     alignItems: 'center',
   },
   appName: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#0C3B2E',
-    marginBottom: 4,
+    ...Typography.h3,
+    color: Colors.primary,
+    marginBottom: Spacing.xs,
   },
   tagline: {
-    fontSize: 12,
-    color: '#6D9773',
-    fontWeight: '600',
+    ...Typography.caption,
   },
 });
