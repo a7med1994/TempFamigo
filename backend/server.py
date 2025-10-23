@@ -558,6 +558,72 @@ async def get_post_comments(post_id: str):
     comments = await db.comments.find({"post_id": post_id}).sort("created_at", 1).to_list(100)
     return [Comment(**serialize_doc(c)) for c in comments]
 
+
+# ==================== FAVORITES / WATCHLIST ====================
+
+class FavoriteItem(BaseModel):
+    user_id: str
+    item_id: str
+    item_type: str  # 'venue', 'event', 'playground', 'childcare'
+    item_data: dict  # Store basic info for quick display
+
+@api_router.post("/favorites/add")
+async def add_to_favorites(favorite: FavoriteItem):
+    """Add an item to user's favorites/watchlist"""
+    # Check if already favorited
+    existing = await db.favorites.find_one({
+        "user_id": favorite.user_id,
+        "item_id": favorite.item_id
+    })
+    
+    if existing:
+        return {"success": False, "message": "Already in favorites"}
+    
+    favorite_doc = {
+        "user_id": favorite.user_id,
+        "item_id": favorite.item_id,
+        "item_type": favorite.item_type,
+        "item_data": favorite.item_data,
+        "created_at": datetime.utcnow()
+    }
+    
+    await db.favorites.insert_one(favorite_doc)
+    return {"success": True, "message": "Added to favorites"}
+
+@api_router.post("/favorites/remove")
+async def remove_from_favorites(data: dict):
+    """Remove an item from user's favorites"""
+    result = await db.favorites.delete_one({
+        "user_id": data["user_id"],
+        "item_id": data["item_id"]
+    })
+    
+    if result.deleted_count > 0:
+        return {"success": True, "message": "Removed from favorites"}
+    return {"success": False, "message": "Not in favorites"}
+
+@api_router.get("/favorites/{user_id}")
+async def get_user_favorites(
+    user_id: str,
+    item_type: Optional[str] = None
+):
+    """Get all favorites for a user, optionally filtered by type"""
+    query = {"user_id": user_id}
+    if item_type:
+        query["item_type"] = item_type
+    
+    favorites = await db.favorites.find(query).sort("created_at", -1).to_list(1000)
+    return [serialize_doc(f) for f in favorites]
+
+@api_router.get("/favorites/check/{user_id}/{item_id}")
+async def check_if_favorited(user_id: str, item_id: str):
+    """Check if an item is in user's favorites"""
+    existing = await db.favorites.find_one({
+        "user_id": user_id,
+        "item_id": item_id
+    })
+    return {"is_favorited": existing is not None}
+
 # Admin panel route
 @app.get("/admin-panel", response_class=HTMLResponse)
 async def admin_panel():
