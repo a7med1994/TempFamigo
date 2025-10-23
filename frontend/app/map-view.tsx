@@ -43,20 +43,61 @@ export default function BrowseCategoriesScreen() {
       setVenues(venuesRes.data);
       setEvents(eventsRes.data);
       
-      // Calculate category counts
+      // Calculate category counts - show total venues + events for each category
       const counts: Record<string, number> = {};
       
-      // Count venues by category
-      venuesRes.data.forEach((venue: any) => {
-        const cat = venue.category.toLowerCase();
-        counts[cat] = (counts[cat] || 0) + 1;
+      // Initialize all categories with 0
+      CATEGORIES.forEach(cat => {
+        if (cat.id !== 'all') {
+          counts[cat.id] = 0;
+        }
       });
       
-      // Count events by event_type
-      eventsRes.data.forEach((event: any) => {
-        const cat = event.event_type.toLowerCase();
-        counts[cat] = (counts[cat] || 0) + 1;
-      });
+      // For simplicity, show total of venues and events combined for each category card
+      // This gives users a sense of content availability
+      counts['playgrounds'] = venuesRes.data.filter((v: any) => 
+        v.category && (v.category.toLowerCase().includes('playground') || v.category.toLowerCase() === 'play')
+      ).length;
+      
+      counts['softplay'] = venuesRes.data.filter((v: any) => 
+        v.category && (v.category.toLowerCase().includes('indoor') || v.category.toLowerCase().includes('soft'))
+      ).length;
+      
+      counts['animals'] = venuesRes.data.filter((v: any) => 
+        v.category && (v.category.toLowerCase().includes('farm') || v.category.toLowerCase().includes('animal') || v.category.toLowerCase().includes('nature'))
+      ).length;
+      
+      counts['arts'] = venuesRes.data.filter((v: any) => 
+        v.category && (v.category.toLowerCase().includes('art') || v.category.toLowerCase().includes('craft') || v.category.toLowerCase().includes('creative'))
+      ).length;
+      
+      counts['events'] = eventsRes.data.length;
+      
+      counts['birthday'] = venuesRes.data.filter((v: any) => 
+        v.description && v.description.toLowerCase().includes('birthday')
+      ).length + eventsRes.data.filter((e: any) => 
+        e.event_type && e.event_type.toLowerCase().includes('birthday')
+      ).length;
+      
+      counts['sports'] = venuesRes.data.filter((v: any) => 
+        v.category && v.category.toLowerCase().includes('sport')
+      ).length;
+      
+      counts['shopping'] = venuesRes.data.filter((v: any) => 
+        v.category && (v.category.toLowerCase().includes('shop') || v.category.toLowerCase().includes('mall'))
+      ).length;
+      
+      counts['creative'] = venuesRes.data.filter((v: any) => 
+        v.category && (v.category.toLowerCase().includes('learning') || v.category.toLowerCase().includes('education'))
+      ).length;
+      
+      counts['community'] = venuesRes.data.filter((v: any) => 
+        v.category && (v.category.toLowerCase().includes('community') || v.category.toLowerCase() === 'free')
+      ).length;
+      
+      counts['childcare'] = venuesRes.data.filter((v: any) => 
+        v.category && (v.category.toLowerCase().includes('childcare') || v.category.toLowerCase().includes('daycare'))
+      ).length;
       
       setCategoryCounts(counts);
     } catch (error) {
