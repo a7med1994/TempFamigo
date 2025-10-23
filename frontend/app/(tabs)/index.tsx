@@ -411,6 +411,7 @@ export default function DiscoverScreen() {
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.cardsContainer}
+            style={styles.horizontalScroll}
           >
             {venues.slice(0, 10).map(renderVenueCard)}
           </ScrollView>
@@ -428,6 +429,7 @@ export default function DiscoverScreen() {
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.cardsContainer}
+            style={styles.horizontalScroll}
           >
             {events.slice(0, 10).map(renderEventCard)}
           </ScrollView>
