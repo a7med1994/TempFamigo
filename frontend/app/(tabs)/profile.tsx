@@ -93,11 +93,11 @@ export default function ProfileScreen() {
               <Image source={{ uri: avatar || user?.avatar }} style={styles.avatar} />
             ) : (
               <View style={styles.avatarPlaceholder}>
-                <Ionicons name=\"person\" size={48} color={Colors.primary} />
+                <Ionicons name="person" size={48} color={Colors.primary} />
               </View>
             )}
             <View style={styles.editAvatarBadge}>
-              <Ionicons name=\"camera\" size={16} color=\"#FFFFFF\" />
+              <Ionicons name="camera" size={16} color="#FFFFFF" />
             </View>
           </TouchableOpacity>
           <Text style={styles.uploadHint}>Tap to upload photo</Text>
