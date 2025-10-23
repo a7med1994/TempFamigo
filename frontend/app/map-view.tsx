@@ -327,4 +327,21 @@ const styles = StyleSheet.create({
     color: Colors.textDark,
     fontWeight: '700',
   },
+  newBadge: {
+    position: 'absolute',
+    bottom: Spacing.sm,
+    right: Spacing.sm,
+    backgroundColor: Colors.secondary,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: BorderRadius.sm,
+    borderWidth: 2,
+    borderColor: Colors.backgroundCard,
+  },
+  newBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: Colors.textDark,
+    letterSpacing: 0.5,
+  },
 });
